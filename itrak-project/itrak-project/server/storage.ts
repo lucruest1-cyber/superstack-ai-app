@@ -1,19 +1,19 @@
-import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
-import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import { GetObjectCommand } from "@aws-sdk/client-s3";
+import { getStorage } from "firebase-admin/storage";
 
-const s3Client = new S3Client({
-  region: process.env.AWS_REGION || "us-east-1",
-  credentials: {
-    accessKeyId: process.env.AWS_ACCESS_KEY_ID || "",
-    secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY || "",
-  },
-});
+const FIREBASE_STORAGE_BUCKET = process.env.FIREBASE_STORAGE_BUCKET;
 
-const BUCKET_NAME = process.env.AWS_S3_BUCKET || "itrak-storage";
+function bucket() {
+  if (!FIREBASE_STORAGE_BUCKET) {
+    throw new Error(
+      "FIREBASE_STORAGE_BUCKET environment variable is not set. " +
+      "Set it to your Firebase Storage bucket name (e.g. your-project.appspot.com)."
+    );
+  }
+  return getStorage().bucket(FIREBASE_STORAGE_BUCKET);
+}
 
 /**
- * Upload file to S3 and return the public URL
+ * Upload a file to Firebase Storage and return the public download URL.
  */
 export async function storagePut(
   relKey: string,
@@ -21,17 +21,15 @@ export async function storagePut(
   contentType: string = "application/octet-stream"
 ): Promise<{ key: string; url: string }> {
   const buffer = typeof data === "string" ? Buffer.from(data) : Buffer.from(data);
-
-  const command = new PutObjectCommand({
-    Bucket: BUCKET_NAME,
-    Key: relKey,
-    Body: buffer,
-    ContentType: contentType,
-  });
+  const file = bucket().file(relKey);
 
   try {
-    await s3Client.send(command);
-    const url = `https://${BUCKET_NAME}.s3.amazonaws.com/${relKey}`;
+    await file.save(buffer, {
+      contentType,
+      metadata: { contentType },
+    });
+    await file.makePublic();
+    const url = file.publicUrl();
     return { key: relKey, url };
   } catch (error) {
     console.error("[Storage] Failed to upload file:", error);
@@ -40,22 +38,23 @@ export async function storagePut(
 }
 
 /**
- * Get a presigned URL for downloading a file from S3
+ * Get a signed download URL for a file in Firebase Storage.
  */
 export async function storageGet(
   relKey: string,
   expiresIn: number = 3600
 ): Promise<{ key: string; url: string }> {
-  const command = new GetObjectCommand({
-    Bucket: BUCKET_NAME,
-    Key: relKey,
-  });
+  const file = bucket().file(relKey);
+  const expiresAt = Date.now() + expiresIn * 1000;
 
   try {
-    const url = await getSignedUrl(s3Client, command, { expiresIn });
+    const [url] = await file.getSignedUrl({
+      action: "read",
+      expires: expiresAt,
+    });
     return { key: relKey, url };
   } catch (error) {
-    console.error("[Storage] Failed to generate presigned URL:", error);
+    console.error("[Storage] Failed to generate signed URL:", error);
     throw error;
   }
 }
