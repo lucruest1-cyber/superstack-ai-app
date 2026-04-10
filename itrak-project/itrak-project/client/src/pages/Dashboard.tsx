@@ -115,19 +115,19 @@ export default function Dashboard() {
                     </div>
                     <div className="text-center">
                       <p className="text-2xl font-bold text-foreground">
-                        {Math.round(parseFloat(summaryQuery.data.totalProtein))}g
+                        {Math.round(summaryQuery.data.totalProtein)}g
                       </p>
                       <p className="text-xs text-muted-foreground">Protein</p>
                     </div>
                     <div className="text-center">
                       <p className="text-2xl font-bold text-foreground">
-                        {Math.round(parseFloat(summaryQuery.data.totalCarbs))}g
+                        {Math.round(summaryQuery.data.totalCarbs)}g
                       </p>
                       <p className="text-xs text-muted-foreground">Carbs</p>
                     </div>
                     <div className="text-center">
                       <p className="text-2xl font-bold text-foreground">
-                        {Math.round(parseFloat(summaryQuery.data.totalFat))}g
+                        {Math.round(summaryQuery.data.totalFat)}g
                       </p>
                       <p className="text-xs text-muted-foreground">Fat</p>
                     </div>
@@ -150,9 +150,9 @@ export default function Dashboard() {
                   <div className="space-y-2">
                     {workoutQuery.data.map((log) => (
                       <div key={log.id} className="p-3 border border-border rounded-lg">
-                        <p className="font-semibold text-foreground">{log.exerciseName}</p>
+                        <p className="font-semibold text-foreground">{log.name}</p>
                         <p className="text-sm text-muted-foreground">
-                          {log.sets} sets × {log.reps} reps @ {log.weight} lbs
+                          {log.sets} sets × {log.reps} reps @ {log.weightLbs} lbs
                         </p>
                       </div>
                     ))}

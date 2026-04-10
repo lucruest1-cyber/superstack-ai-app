@@ -45,6 +45,7 @@
     "dotenv": "^17.2.2",
     "express": "^4.21.2",
     "firebase": "^12.11.0",
+    "firebase-admin": "^13.8.0",
     "framer-motion": "^12.23.22",
     "input-otp": "^1.4.2",
     "jose": "6.1.0",

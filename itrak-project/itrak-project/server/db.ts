@@ -19,7 +19,7 @@ export interface UserRecord {
 export interface WorkoutLogRecord {
   id?: string;
   userId: string;
-  exerciseId: string;
+  name: string;
   environment: "gym" | "home" | "hotel" | "outside";
   sets?: number | null;
   reps?: number | null;
@@ -33,12 +33,12 @@ export interface PhotoCaloricLogRecord {
   id?: string;
   userId: string;
   photoUrl?: string | null;
-  mealDescription?: string | null;
+  foodDescription?: string | null;
   calories?: number | null;
   protein?: number | null;
   carbs?: number | null;
   fat?: number | null;
-  aiResponse?: Record<string, unknown> | null;
+  analysisData?: Record<string, unknown> | null;
   loggedAt: Date;
   expiresAt: Date;
 }

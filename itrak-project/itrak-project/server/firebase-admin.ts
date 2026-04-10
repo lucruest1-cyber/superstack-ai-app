@@ -1,3 +1,6 @@
+import dotenv from "dotenv";
+dotenv.config({ path: ".env.local" });
+
 import { initializeApp, getApps, cert } from "firebase-admin/app";
 
 const apps = getApps();
