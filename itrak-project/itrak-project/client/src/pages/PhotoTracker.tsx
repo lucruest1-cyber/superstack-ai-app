@@ -1,5 +1,4 @@
 import { useRef, useState } from "react";
-import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -8,7 +7,6 @@ import { ArrowLeft, Camera, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
 export default function PhotoTracker() {
-  const { user } = useAuth();
   const [, setLocation] = useLocation();
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);

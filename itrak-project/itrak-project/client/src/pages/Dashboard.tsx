@@ -112,11 +112,11 @@ export default function Dashboard() {
 
   // Derived summary stats
   const totalCalories = summary?.totalCalories ?? 0;
-  const totalMinutes = workouts.reduce((s, w) => s + w.sets * 2, 0);
+  const totalMinutes = workouts.reduce((s, w) => s + (w.sets ?? 0) * 2, 0);
 
   // Avatar initials
-  const initials = (user?.name ?? user?.email ?? "U")
-    .split(" ").map((p) => p[0]).join("").slice(0, 2).toUpperCase();
+  const initials = ((user?.name ?? "") || (user?.email ?? "") || "U")
+    .split(" ").map((p: string) => p[0]).join("").slice(0, 2).toUpperCase();
 
   return (
     <div className="min-h-screen bg-[#0a0a0f] pb-8">
@@ -335,7 +335,7 @@ export default function Dashboard() {
                 className="flex items-center gap-3 rounded-xl bg-[#13131a] border border-white/5 px-4 py-3"
               >
                 <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-xl shrink-0">
-                  {foodEmoji(meal.foodDescription)}
+                  {foodEmoji(meal.foodDescription ?? "")}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-white font-semibold text-sm truncate">

@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -17,7 +16,6 @@ import { ArrowLeft } from "lucide-react";
 import { toast } from "sonner";
 
 export default function WorkoutLogger() {
-  const { user } = useAuth();
   const [, setLocation] = useLocation();
   const [environment, setEnvironment] = useState<"gym" | "home" | "hotel" | "outside">("gym");
   const [exerciseName, setExerciseName] = useState("");

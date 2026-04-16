@@ -1,4 +1,4 @@
-import { getFirestore, Timestamp, FieldValue } from "firebase-admin/firestore";
+import { getFirestore, Timestamp } from "firebase-admin/firestore";
 
 // ============= TYPES =============
 
@@ -156,10 +156,10 @@ export async function getAllExercises(): Promise<ExerciseRecord[]> {
 
 // ============= WORKOUT LOG FUNCTIONS =============
 
-export async function createWorkoutLog(log: Omit<WorkoutLogRecord, "id">): Promise<string> {
+export async function createWorkoutLog(log: Omit<WorkoutLogRecord, "id" | "loggedAt">): Promise<string> {
   const ref = await db().collection("workoutLogs").add({
     ...log,
-    loggedAt: log.loggedAt ?? new Date(),
+    loggedAt: new Date(),
   });
   return ref.id;
 }
@@ -197,13 +197,14 @@ export async function getWorkoutLogsByDate(userId: string, date: string): Promis
 
 // ============= PHOTO CALORIE LOG FUNCTIONS =============
 
-export async function createPhotoCaloricLog(log: Omit<PhotoCaloricLogRecord, "id" | "expiresAt">): Promise<string> {
+export async function createPhotoCaloricLog(log: Omit<PhotoCaloricLogRecord, "id" | "loggedAt" | "expiresAt">): Promise<string> {
+  const now = new Date();
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + 7);
 
   const ref = await db().collection("photoCaloricLogs").add({
     ...log,
-    loggedAt: log.loggedAt ?? new Date(),
+    loggedAt: now,
     expiresAt,
   });
   return ref.id;
