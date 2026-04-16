@@ -187,7 +187,7 @@ export const appRouter = router({
           calories: logs.reduce((sum, log) => sum + (log.calories || 0), 0),
           protein: logs.reduce((sum, log) => sum + (log.protein || 0), 0),
           carbs: logs.reduce((sum, log) => sum + (log.carbs || 0), 0),
-          fat: logs.reduce((sum, log) => sum + parseFloat(log.fat || "0"), 0),
+          fat: logs.reduce((sum, log) => sum + (log.fat || 0), 0),
         };
         await db.updateDailyCalorieSummary(ctx.user.id, today, totals);
 
