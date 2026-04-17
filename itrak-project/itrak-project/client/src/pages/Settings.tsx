@@ -139,7 +139,7 @@ export default function Settings() {
         </Card>
 
         {/* Logout Card */}
-        <Card className="border-red-200 bg-red-50">
+        <Card className="border-red-900/40 bg-red-950/20">
           <CardContent className="pt-6">
             <Button variant="destructive" className="w-full" onClick={handleLogout}>
               Logout

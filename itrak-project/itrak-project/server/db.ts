@@ -1,330 +1,321 @@
-import { eq, and, gte, lte } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/mysql2";
-import { 
-  InsertUser, 
-  users, 
-  exercises, 
-  workoutLogs, 
-  photoCaloricLogs, 
-  dailyCalorieSummary,
-  betaTesters,
-  InsertWorkoutLog,
-  InsertPhotoCaloricLog
-} from "../drizzle/schema";
+import { getFirestore, Timestamp } from "firebase-admin/firestore";
 
-let _db: ReturnType<typeof drizzle> | null = null;
+// ============= TYPES =============
 
-export async function getDb() {
-  if (!_db && process.env.DATABASE_URL) {
-    try {
-      _db = drizzle(process.env.DATABASE_URL);
-    } catch (error) {
-      console.warn("[Database] Failed to connect:", error);
-      _db = null;
-    }
-  }
-  return _db;
+export interface UserRecord {
+  id: string;           // Firestore doc ID (same as Firebase Auth UID)
+  openId: string;       // Google UID from Firebase Auth
+  name?: string | null;
+  email?: string | null;
+  loginMethod?: string | null;
+  role: "user" | "admin";
+  unitPreference: "lbs" | "kg";
+  environmentPreference: "gym" | "home" | "hotel" | "outside";
+  genderDemoPreference: "male" | "female" | "neutral";
+  lastSignedIn?: Date | null;
+  createdAt?: Date;
+}
+
+export interface WorkoutLogRecord {
+  id?: string;
+  userId: string;
+  name: string;
+  environment: "gym" | "home" | "hotel" | "outside";
+  sets?: number | null;
+  reps?: number | null;
+  weightLbs?: number | null;
+  durationSec?: number | null;
+  notes?: string | null;
+  loggedAt: Date;
+}
+
+export interface PhotoCaloricLogRecord {
+  id?: string;
+  userId: string;
+  photoUrl?: string | null;
+  foodDescription?: string | null;
+  calories?: number | null;
+  protein?: number | null;
+  carbs?: number | null;
+  fat?: number | null;
+  analysisData?: Record<string, unknown> | null;
+  loggedAt: Date;
+  expiresAt: Date;
+}
+
+export interface DailyCalorieSummaryRecord {
+  id?: string;
+  userId: string;
+  date: string;         // "YYYY-MM-DD"
+  totalCalories: number;
+  totalProtein: number;
+  totalCarbs: number;
+  totalFat: number;
+  photoCount: number;
+}
+
+export interface ExerciseRecord {
+  id?: string;
+  name: string;
+  description?: string | null;
+  environments: string[];
+  muscleGroups?: string[] | null;
+  difficulty: "beginner" | "intermediate" | "advanced";
+  videoUrl?: string | null;
+  thumbnailUrl?: string | null;
+}
+
+// ============= HELPERS =============
+
+function db() {
+  return getFirestore();
+}
+
+function toDate(ts: unknown): Date {
+  if (ts instanceof Timestamp) return ts.toDate();
+  if (ts instanceof Date) return ts;
+  return new Date(ts as string);
+}
+
+function docToUser(id: string, data: FirebaseFirestore.DocumentData): UserRecord {
+  return {
+    ...data,
+    id,
+    lastSignedIn: data.lastSignedIn ? toDate(data.lastSignedIn) : null,
+    createdAt: data.createdAt ? toDate(data.createdAt) : undefined,
+  } as UserRecord;
 }
 
 // ============= USER FUNCTIONS =============
 
-export async function upsertUser(user: InsertUser): Promise<void> {
-  if (!user.openId) {
-    throw new Error("User openId is required for upsert");
-  }
+export async function upsertUser(user: Partial<UserRecord> & { openId: string }): Promise<void> {
+  if (!user.openId) throw new Error("User openId is required for upsert");
 
-  const db = await getDb();
-  if (!db) {
-    console.warn("[Database] Cannot upsert user: database not available");
-    return;
-  }
+  const col = db().collection("users");
+  const snapshot = await col.where("openId", "==", user.openId).limit(1).get();
 
-  try {
-    const values: InsertUser = {
-      openId: user.openId,
-    };
-    const updateSet: Record<string, unknown> = {};
+  const now = new Date();
+  const payload: Record<string, unknown> = {
+    openId: user.openId,
+    lastSignedIn: now,
+  };
 
-    const textFields = ["name", "email", "loginMethod"] as const;
-    type TextField = (typeof textFields)[number];
+  if (user.name !== undefined)                   payload.name = user.name ?? null;
+  if (user.email !== undefined)                  payload.email = user.email ?? null;
+  if (user.loginMethod !== undefined)            payload.loginMethod = user.loginMethod ?? null;
+  if (user.role !== undefined)                   payload.role = user.role;
+  if (user.unitPreference !== undefined)         payload.unitPreference = user.unitPreference;
+  if (user.environmentPreference !== undefined)  payload.environmentPreference = user.environmentPreference;
+  if (user.genderDemoPreference !== undefined)   payload.genderDemoPreference = user.genderDemoPreference;
 
-    const assignNullable = (field: TextField) => {
-      const value = user[field];
-      if (value === undefined) return;
-      const normalized = value ?? null;
-      values[field] = normalized;
-      updateSet[field] = normalized;
-    };
-
-    textFields.forEach(assignNullable);
-
-    if (user.lastSignedIn !== undefined) {
-      values.lastSignedIn = user.lastSignedIn;
-      updateSet.lastSignedIn = user.lastSignedIn;
-    }
-    if (user.role !== undefined) {
-      values.role = user.role;
-      updateSet.role = user.role;
-    }
-
-    if (!values.lastSignedIn) {
-      values.lastSignedIn = new Date();
-    }
-
-    if (Object.keys(updateSet).length === 0) {
-      updateSet.lastSignedIn = new Date();
-    }
-
-    await db.insert(users).values(values).onDuplicateKeyUpdate({
-      set: updateSet,
-    });
-  } catch (error) {
-    console.error("[Database] Failed to upsert user:", error);
-    throw error;
+  if (snapshot.empty) {
+    payload.createdAt = now;
+    payload.role = payload.role ?? "user";
+    payload.unitPreference = payload.unitPreference ?? "lbs";
+    payload.environmentPreference = payload.environmentPreference ?? "gym";
+    payload.genderDemoPreference = payload.genderDemoPreference ?? "neutral";
+    await col.add(payload);
+  } else {
+    await snapshot.docs[0].ref.set(payload, { merge: true });
   }
 }
 
-export async function getUserByOpenId(openId: string) {
-  const db = await getDb();
-  if (!db) {
-    console.warn("[Database] Cannot get user: database not available");
-    return undefined;
-  }
-
-  const result = await db.select().from(users).where(eq(users.openId, openId)).limit(1);
-  return result.length > 0 ? result[0] : undefined;
+export async function getUserByOpenId(openId: string): Promise<UserRecord | undefined> {
+  const snapshot = await db().collection("users")
+    .where("openId", "==", openId)
+    .limit(1)
+    .get();
+  if (snapshot.empty) return undefined;
+  const doc = snapshot.docs[0];
+  return docToUser(doc.id, doc.data());
 }
 
-export async function getUserById(id: number) {
-  const db = await getDb();
-  if (!db) return undefined;
-
-  const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
-  return result.length > 0 ? result[0] : undefined;
+export async function getUserById(id: string): Promise<UserRecord | undefined> {
+  const doc = await db().collection("users").doc(id).get();
+  if (!doc.exists) return undefined;
+  return docToUser(doc.id, doc.data()!);
 }
 
-export async function updateUserPreferences(userId: number, preferences: Partial<InsertUser>) {
-  const db = await getDb();
-  if (!db) return;
-
-  await db.update(users).set(preferences).where(eq(users.id, userId));
+export async function updateUserPreferences(userId: string, preferences: Partial<UserRecord>): Promise<void> {
+  await db().collection("users").doc(userId).set(preferences, { merge: true });
 }
 
 // ============= EXERCISE FUNCTIONS =============
 
-export async function getExercisesByEnvironment(environment: string) {
-  const db = await getDb();
-  if (!db) return [];
-
-  const result = await db.select().from(exercises);
-  return result.filter(ex => {
-    const envs = Array.isArray(ex.environments) ? ex.environments : JSON.parse(ex.environments as string);
-    return envs.includes(environment);
-  });
+export async function getExercisesByEnvironment(environment: string): Promise<ExerciseRecord[]> {
+  const snapshot = await db().collection("exercises")
+    .where("environments", "array-contains", environment)
+    .get();
+  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ExerciseRecord));
 }
 
-export async function getAllExercises() {
-  const db = await getDb();
-  if (!db) return [];
-
-  return await db.select().from(exercises);
+export async function getAllExercises(): Promise<ExerciseRecord[]> {
+  const snapshot = await db().collection("exercises").get();
+  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ExerciseRecord));
 }
 
 // ============= WORKOUT LOG FUNCTIONS =============
 
-export async function createWorkoutLog(log: InsertWorkoutLog) {
-  const db = await getDb();
-  if (!db) return;
-
-  const result = await db.insert(workoutLogs).values(log);
-  return result;
+export async function createWorkoutLog(log: Omit<WorkoutLogRecord, "id" | "loggedAt">): Promise<string> {
+  const ref = await db().collection("workoutLogs").add({
+    ...log,
+    loggedAt: new Date(),
+  });
+  return ref.id;
 }
 
-export async function getWorkoutLogsByUser(userId: number, limit: number = 50) {
-  const db = await getDb();
-  if (!db) return [];
-
-  return await db.select()
-    .from(workoutLogs)
-    .where(eq(workoutLogs.userId, userId))
-    .orderBy((t) => t.loggedAt)
-    .limit(limit);
+export async function getWorkoutLogsByUser(userId: string, limit: number = 50): Promise<WorkoutLogRecord[]> {
+  const snapshot = await db().collection("workoutLogs")
+    .where("userId", "==", userId)
+    .orderBy("loggedAt", "desc")
+    .limit(limit)
+    .get();
+  return snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data(),
+    loggedAt: toDate(doc.data().loggedAt),
+  } as WorkoutLogRecord));
 }
 
-export async function getWorkoutLogsByDate(userId: number, date: string) {
-  const db = await getDb();
-  if (!db) return [];
-
+export async function getWorkoutLogsByDate(userId: string, date: string): Promise<WorkoutLogRecord[]> {
   const startOfDay = new Date(`${date}T00:00:00Z`);
   const endOfDay = new Date(`${date}T23:59:59Z`);
 
-  return await db.select()
-    .from(workoutLogs)
-    .where(
-      and(
-        eq(workoutLogs.userId, userId),
-        gte(workoutLogs.loggedAt, startOfDay),
-        lte(workoutLogs.loggedAt, endOfDay)
-      )
-    );
+  const snapshot = await db().collection("workoutLogs")
+    .where("userId", "==", userId)
+    .where("loggedAt", ">=", startOfDay)
+    .where("loggedAt", "<=", endOfDay)
+    .orderBy("loggedAt", "desc")
+    .get();
+
+  return snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data(),
+    loggedAt: toDate(doc.data().loggedAt),
+  } as WorkoutLogRecord));
 }
 
 // ============= PHOTO CALORIE LOG FUNCTIONS =============
 
-export async function createPhotoCaloricLog(log: InsertPhotoCaloricLog) {
-  const db = await getDb();
-  if (!db) return;
-
-  // Set expiration to 7 days from now
+export async function createPhotoCaloricLog(log: Omit<PhotoCaloricLogRecord, "id" | "loggedAt" | "expiresAt">): Promise<string> {
+  const now = new Date();
   const expiresAt = new Date();
   expiresAt.setDate(expiresAt.getDate() + 7);
-  
-  const logWithExpiry = {
+
+  const ref = await db().collection("photoCaloricLogs").add({
     ...log,
+    loggedAt: now,
     expiresAt,
-  };
-
-  return await db.insert(photoCaloricLogs).values(logWithExpiry);
+  });
+  return ref.id;
 }
 
-export async function getPhotoCaloricLogsByUser(userId: number, limit: number = 100) {
-  const db = await getDb();
-  if (!db) return [];
-
+export async function getPhotoCaloricLogsByUser(userId: string, limit: number = 100): Promise<PhotoCaloricLogRecord[]> {
   const now = new Date();
-  return await db.select()
-    .from(photoCaloricLogs)
-    .where(
-      and(
-        eq(photoCaloricLogs.userId, userId),
-        gte(photoCaloricLogs.expiresAt, now)
-      )
-    )
-    .orderBy((t) => t.loggedAt)
-    .limit(limit);
+  const snapshot = await db().collection("photoCaloricLogs")
+    .where("userId", "==", userId)
+    .where("expiresAt", ">", now)
+    .orderBy("expiresAt", "asc")
+    .orderBy("loggedAt", "desc")
+    .limit(limit)
+    .get();
+
+  return snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data(),
+    loggedAt: toDate(doc.data().loggedAt),
+    expiresAt: toDate(doc.data().expiresAt),
+  } as PhotoCaloricLogRecord));
 }
 
-export async function getPhotoCaloricLogsByDate(userId: number, date: string) {
-  const db = await getDb();
-  if (!db) return [];
-
+export async function getPhotoCaloricLogsByDate(userId: string, date: string): Promise<PhotoCaloricLogRecord[]> {
   const startOfDay = new Date(`${date}T00:00:00Z`);
   const endOfDay = new Date(`${date}T23:59:59Z`);
   const now = new Date();
 
-  return await db.select()
-    .from(photoCaloricLogs)
-    .where(
-      and(
-        eq(photoCaloricLogs.userId, userId),
-        gte(photoCaloricLogs.loggedAt, startOfDay),
-        lte(photoCaloricLogs.loggedAt, endOfDay),
-        gte(photoCaloricLogs.expiresAt, now)
-      )
-    );
+  const snapshot = await db().collection("photoCaloricLogs")
+    .where("userId", "==", userId)
+    .where("loggedAt", ">=", startOfDay)
+    .where("loggedAt", "<=", endOfDay)
+    .where("expiresAt", ">", now)
+    .orderBy("loggedAt", "desc")
+    .get();
+
+  return snapshot.docs.map(doc => ({
+    id: doc.id,
+    ...doc.data(),
+    loggedAt: toDate(doc.data().loggedAt),
+    expiresAt: toDate(doc.data().expiresAt),
+  } as PhotoCaloricLogRecord));
 }
 
-export async function countPhotosLoggedToday(userId: number): Promise<number> {
-  const db = await getDb();
-  if (!db) return 0;
-
+export async function countPhotosLoggedToday(userId: string): Promise<number> {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
   const tomorrow = new Date(today);
   tomorrow.setDate(tomorrow.getDate() + 1);
 
-  const result = await db.select()
-    .from(photoCaloricLogs)
-    .where(
-      and(
-        eq(photoCaloricLogs.userId, userId),
-        gte(photoCaloricLogs.loggedAt, today),
-        lte(photoCaloricLogs.loggedAt, tomorrow)
-      )
-    );
+  const snapshot = await db().collection("photoCaloricLogs")
+    .where("userId", "==", userId)
+    .where("loggedAt", ">=", today)
+    .where("loggedAt", "<", tomorrow)
+    .get();
 
-  return result.length;
+  return snapshot.size;
 }
 
 // ============= DAILY SUMMARY FUNCTIONS =============
 
-export async function getDailyCalorieSummary(userId: number, date: string) {
-  const db = await getDb();
-  if (!db) return null;
+export async function getDailyCalorieSummary(userId: string, date: string): Promise<DailyCalorieSummaryRecord | null> {
+  const snapshot = await db().collection("dailyCalorieSummary")
+    .where("userId", "==", userId)
+    .where("date", "==", date)
+    .limit(1)
+    .get();
 
-  const result = await db.select()
-    .from(dailyCalorieSummary)
-    .where(
-      and(
-        eq(dailyCalorieSummary.userId, userId),
-        eq(dailyCalorieSummary.date, date)
-      )
-    )
-    .limit(1);
-
-  return result.length > 0 ? result[0] : null;
+  if (snapshot.empty) return null;
+  const doc = snapshot.docs[0];
+  return { id: doc.id, ...doc.data() } as DailyCalorieSummaryRecord;
 }
 
-export async function updateDailyCalorieSummary(userId: number, date: string, totals: {
-  calories: number;
-  protein: number;
-  carbs: number;
-  fat: number;
-}) {
-  const db = await getDb();
-  if (!db) return;
-
+export async function updateDailyCalorieSummary(
+  userId: string,
+  date: string,
+  totals: { calories: number; protein: number; carbs: number; fat: number }
+): Promise<void> {
   const existing = await getDailyCalorieSummary(userId, date);
 
-  if (existing) {
-    await db.update(dailyCalorieSummary)
-      .set({
-        totalCalories: totals.calories,
-        totalProtein: totals.protein.toString(),
-        totalCarbs: totals.carbs.toString(),
-        totalFat: totals.fat.toString(),
-      })
-      .where(
-        and(
-          eq(dailyCalorieSummary.userId, userId),
-          eq(dailyCalorieSummary.date, date)
-        )
-      );
+  const payload = {
+    userId,
+    date,
+    totalCalories: totals.calories,
+    totalProtein: totals.protein,
+    totalCarbs: totals.carbs,
+    totalFat: totals.fat,
+  };
+
+  if (existing?.id) {
+    await db().collection("dailyCalorieSummary").doc(existing.id).set(payload, { merge: true });
   } else {
-    await db.insert(dailyCalorieSummary).values({
-      userId,
-      date,
-      totalCalories: totals.calories,
-      totalProtein: totals.protein.toString(),
-      totalCarbs: totals.carbs.toString(),
-      totalFat: totals.fat.toString(),
-      photoCount: 0,
-    });
+    await db().collection("dailyCalorieSummary").add({ ...payload, photoCount: 0 });
   }
 }
 
 // ============= BETA TESTER FUNCTIONS =============
 
 export async function isBetaTesterWhitelisted(email: string): Promise<boolean> {
-  const db = await getDb();
-  if (!db) return false;
-
-  const result = await db.select()
-    .from(betaTesters)
-    .where(eq(betaTesters.email, email))
-    .limit(1);
-
-  return result.length > 0;
+  const snapshot = await db().collection("betaTesters")
+    .where("email", "==", email)
+    .limit(1)
+    .get();
+  return !snapshot.empty;
 }
 
-export async function activateBetaTester(email: string) {
-  const db = await getDb();
-  if (!db) return;
-
-  await db.update(betaTesters)
-    .set({
-      status: "active",
-      activatedAt: new Date(),
-    })
-    .where(eq(betaTesters.email, email));
+export async function activateBetaTester(email: string): Promise<void> {
+  const snapshot = await db().collection("betaTesters")
+    .where("email", "==", email)
+    .limit(1)
+    .get();
+  if (snapshot.empty) return;
+  await snapshot.docs[0].ref.set({ status: "active", activatedAt: new Date() }, { merge: true });
 }

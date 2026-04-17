@@ -73,16 +73,16 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ ctx, input }) => {
-        const result = await db.createWorkoutLog({
+        const id = await db.createWorkoutLog({
           userId: ctx.user.id,
-          exerciseName: input.exerciseName,
+          name: input.exerciseName,
           environment: input.environment,
           sets: input.sets,
           reps: input.reps,
-          weight: input.weight.toString(),
+          weightLbs: input.weight,
           notes: input.notes,
         });
-        return { success: true, id: result.insertId };
+        return { success: true, id };
       }),
 
     getToday: protectedProcedure.query(async ({ ctx }) => {
@@ -174,9 +174,9 @@ export const appRouter = router({
           photoUrl,
           foodDescription: analysis.foodDescription,
           calories: analysis.calories,
-          protein: analysis.protein.toString(),
-          carbs: analysis.carbs.toString(),
-          fat: analysis.fat.toString(),
+          protein: analysis.protein,
+          carbs: analysis.carbs,
+          fat: analysis.fat,
           analysisData: analysis,
         });
 
@@ -185,9 +185,9 @@ export const appRouter = router({
         const logs = await db.getPhotoCaloricLogsByDate(ctx.user.id, today);
         const totals = {
           calories: logs.reduce((sum, log) => sum + (log.calories || 0), 0),
-          protein: logs.reduce((sum, log) => sum + parseFloat(log.protein || "0"), 0),
-          carbs: logs.reduce((sum, log) => sum + parseFloat(log.carbs || "0"), 0),
-          fat: logs.reduce((sum, log) => sum + parseFloat(log.fat || "0"), 0),
+          protein: logs.reduce((sum, log) => sum + (log.protein || 0), 0),
+          carbs: logs.reduce((sum, log) => sum + (log.carbs || 0), 0),
+          fat: logs.reduce((sum, log) => sum + (log.fat || 0), 0),
         };
         await db.updateDailyCalorieSummary(ctx.user.id, today, totals);
 
