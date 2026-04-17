@@ -1,5 +1,5 @@
 {
-  "installCommand": "cd itrak-project/itrak-project && npm install -g pnpm@10.4.1 --quiet && pnpm install",
+  "installCommand": "cd itrak-project/itrak-project && pnpm install",
   "buildCommand": "cd itrak-project/itrak-project && pnpm exec vite build",
   "outputDirectory": "itrak-project/itrak-project/dist/client",
   "rewrites": [
