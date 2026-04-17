@@ -1,4 +1,4 @@
-import { getFirestore, Timestamp } from "firebase-admin/firestore";
+import { getFirestore, Timestamp, type DocumentData } from "firebase-admin/firestore";
 
 // ============= TYPES =============
 
@@ -77,7 +77,7 @@ function toDate(ts: unknown): Date {
   return new Date(ts as string);
 }
 
-function docToUser(id: string, data: FirebaseFirestore.DocumentData): UserRecord {
+function docToUser(id: string, data: DocumentData): UserRecord {
   return {
     ...data,
     id,
