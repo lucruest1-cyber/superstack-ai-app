@@ -1,4 +1,4 @@
-import { getFirestore, Timestamp, type DocumentData } from "firebase-admin/firestore";
+import { getFirestore, Timestamp, type DocumentData, type QueryDocumentSnapshot } from "firebase-admin/firestore";
 
 // ============= TYPES =============
 
@@ -74,7 +74,8 @@ function db() {
 function toDate(ts: unknown): Date {
   if (ts instanceof Timestamp) return ts.toDate();
   if (ts instanceof Date) return ts;
-  return new Date(ts as string);
+  if (typeof ts === "string" || typeof ts === "number") return new Date(ts);
+  return new Date(String(ts));
 }
 
 function docToUser(id: string, data: DocumentData): UserRecord {
@@ -146,12 +147,12 @@ export async function getExercisesByEnvironment(environment: string): Promise<Ex
   const snapshot = await db().collection("exercises")
     .where("environments", "array-contains", environment)
     .get();
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ExerciseRecord));
+  return snapshot.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => ({ id: doc.id, ...doc.data() } as ExerciseRecord));
 }
 
 export async function getAllExercises(): Promise<ExerciseRecord[]> {
   const snapshot = await db().collection("exercises").get();
-  return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() } as ExerciseRecord));
+  return snapshot.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => ({ id: doc.id, ...doc.data() } as ExerciseRecord));
 }
 
 // ============= WORKOUT LOG FUNCTIONS =============
@@ -170,7 +171,7 @@ export async function getWorkoutLogsByUser(userId: string, limit: number = 50): 
     .orderBy("loggedAt", "desc")
     .limit(limit)
     .get();
-  return snapshot.docs.map(doc => ({
+  return snapshot.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => ({
     id: doc.id,
     ...doc.data(),
     loggedAt: toDate(doc.data().loggedAt),
@@ -188,7 +189,7 @@ export async function getWorkoutLogsByDate(userId: string, date: string): Promis
     .orderBy("loggedAt", "desc")
     .get();
 
-  return snapshot.docs.map(doc => ({
+  return snapshot.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => ({
     id: doc.id,
     ...doc.data(),
     loggedAt: toDate(doc.data().loggedAt),
@@ -220,7 +221,7 @@ export async function getPhotoCaloricLogsByUser(userId: string, limit: number = 
     .limit(limit)
     .get();
 
-  return snapshot.docs.map(doc => ({
+  return snapshot.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => ({
     id: doc.id,
     ...doc.data(),
     loggedAt: toDate(doc.data().loggedAt),
@@ -241,7 +242,7 @@ export async function getPhotoCaloricLogsByDate(userId: string, date: string): P
     .orderBy("loggedAt", "desc")
     .get();
 
-  return snapshot.docs.map(doc => ({
+  return snapshot.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => ({
     id: doc.id,
     ...doc.data(),
     loggedAt: toDate(doc.data().loggedAt),

@@ -1,6 +1,6 @@
 import { initTRPC, TRPCError } from "@trpc/server";
 import { getAuth } from "firebase-admin/auth";
-import type { Request, Response } from "express";
+import { type Request, type Response } from "express";
 import * as db from "../db";
 import superjson from "superjson";
 

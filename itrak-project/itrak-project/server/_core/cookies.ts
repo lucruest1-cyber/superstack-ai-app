@@ -1,4 +1,4 @@
-import type { Request, CookieOptions } from "express";
+import { type Request, type CookieOptions } from "express";
 
 export function getSessionCookieOptions(req: Request): CookieOptions {
   const isSecure =
