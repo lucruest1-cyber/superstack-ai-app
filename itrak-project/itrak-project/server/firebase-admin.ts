@@ -13,23 +13,23 @@ if (apps.length === 0) {
   const serviceAccountKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
 
   if (!serviceAccountKey) {
-    throw new Error(
-      "FIREBASE_SERVICE_ACCOUNT_KEY environment variable is not set. " +
-      "Provide the Firebase service account JSON as a string."
+    console.error(
+      "[firebase-admin] FIREBASE_SERVICE_ACCOUNT_KEY is not set — Firebase will not be initialized. " +
+      "All database calls will fail until this variable is provided."
     );
+  } else {
+    let serviceAccount: object | null = null;
+    try {
+      serviceAccount = JSON.parse(serviceAccountKey);
+    } catch {
+      console.error(
+        "[firebase-admin] FIREBASE_SERVICE_ACCOUNT_KEY is not valid JSON — Firebase will not be initialized."
+      );
+    }
+    if (serviceAccount) {
+      initializeApp({ credential: cert(serviceAccount as Parameters<typeof cert>[0]) });
+    }
   }
-
-  let serviceAccount: object;
-  try {
-    serviceAccount = JSON.parse(serviceAccountKey);
-  } catch {
-    throw new Error(
-      "FIREBASE_SERVICE_ACCOUNT_KEY is not valid JSON. " +
-      "Ensure the entire service account JSON is stored as a single-line string."
-    );
-  }
-
-  initializeApp({ credential: cert(serviceAccount as any) });
 }
 
 export { getApps };
