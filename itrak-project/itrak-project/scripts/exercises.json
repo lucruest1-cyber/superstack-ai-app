@@ -1,0 +1,1004 @@
+{
+  "exercises": [
+    {
+      "id": "ex001",
+      "name": "Barbell Squat",
+      "category": "Legs",
+      "muscleGroups": ["quadriceps", "hamstrings", "glutes"],
+      "difficulty": "intermediate",
+      "environments": ["gym"],
+      "formTips": "Keep chest up, knees tracking over toes, drive through heels, maintain neutral spine",
+      "commonMistakes": "Caving knees inward, rounding lower back, heels rising off floor"
+    },
+    {
+      "id": "ex002",
+      "name": "Barbell Deadlift",
+      "category": "Back",
+      "muscleGroups": ["back", "hamstrings", "glutes", "core"],
+      "difficulty": "intermediate",
+      "environments": ["gym"],
+      "formTips": "Hips and shoulders rise together, bar stays close to body, neutral spine throughout",
+      "commonMistakes": "Rounding lower back, bar drifting away from body, jerky movements"
+    },
+    {
+      "id": "ex003",
+      "name": "Barbell Bench Press",
+      "category": "Chest",
+      "muscleGroups": ["chest", "triceps", "shoulders"],
+      "difficulty": "intermediate",
+      "environments": ["gym"],
+      "formTips": "Feet flat on floor, shoulder blades retracted, lower bar to mid-chest, elbows at 45 degrees",
+      "commonMistakes": "Bouncing bar off chest, elbows flaring too wide, feet off floor"
+    },
+    {
+      "id": "ex004",
+      "name": "Barbell Rows",
+      "category": "Back",
+      "muscleGroups": ["back", "biceps", "core"],
+      "difficulty": "intermediate",
+      "environments": ["gym"],
+      "formTips": "Hinge at hips, chest nearly parallel to floor, pull bar to lower chest, squeeze shoulder blades",
+      "commonMistakes": "Rounding back, pulling to waist instead of chest, jerky movements"
+    },
+    {
+      "id": "ex005",
+      "name": "Dumbbell Chest Press",
+      "category": "Chest",
+      "muscleGroups": ["chest", "triceps", "shoulders"],
+      "difficulty": "beginner",
+      "environments": ["gym"],
+      "formTips": "Dumbbells at shoulder height, press straight up, control the descent",
+      "commonMistakes": "Dumbbells too high or too low at start, pressing at an angle, elbows flaring excessively"
+    },
+    {
+      "id": "ex006",
+      "name": "Dumbbell Rows",
+      "category": "Back",
+      "muscleGroups": ["back", "biceps"],
+      "difficulty": "beginner",
+      "environments": ["gym"],
+      "formTips": "Hinge at hips, one knee on bench, pull dumbbell to ribcage, squeeze at top",
+      "commonMistakes": "Rotating torso, pulling too high, not fully extending arm"
+    },
+    {
+      "id": "ex007",
+      "name": "Leg Press",
+      "category": "Legs",
+      "muscleGroups": ["quadriceps", "hamstrings", "glutes"],
+      "difficulty": "beginner",
+      "environments": ["gym"],
+      "formTips": "Feet shoulder-width apart, lower until knees at 90 degrees, push through heels",
+      "commonMistakes": "Knees caving inward, going too deep, locking knees at top"
+    },
+    {
+      "id": "ex008",
+      "name": "Leg Curl Machine",
+      "category": "Legs",
+      "muscleGroups": ["hamstrings"],
+      "difficulty": "beginner",
+      "environments": ["gym"],
+      "formTips": "Lie face down, curl legs up smoothly, control the descent, keep hips on pad",
+      "commonMistakes": "Lifting hips off pad, jerky movements, not controlling descent"
+    },
+    {
+      "id": "ex009",
+      "name": "Leg Extension Machine",
+      "category": "Legs",
+      "muscleGroups": ["quadriceps"],
+      "difficulty": "beginner",
+      "environments": ["gym"],
+      "formTips": "Sit upright, extend legs fully, pause at top, control the descent",
+      "commonMistakes": "Jerky movements, not extending fully, leaning back too much"
+    },
+    {
+      "id": "ex010",
+      "name": "Cable Chest Fly",
+      "category": "Chest",
+      "muscleGroups": ["chest"],
+      "difficulty": "intermediate",
+      "environments": ["gym"],
+      "formTips": "Slight bend in elbows, bring hands together in front of chest, squeeze at center",
+      "commonMistakes": "Elbows too straight, not bringing hands together, jerky movements"
+    },
+    {
+      "id": "ex011",
+      "name": "Cable Lat Pulldown",
+      "category": "Back",
+      "muscleGroups": ["back", "biceps"],
+      "difficulty": "beginner",
+      "environments": ["gym"],
+      "formTips": "Grip slightly wider than shoulders, pull bar to upper chest, squeeze shoulder blades",
+      "commonMistakes": "Pulling too low, leaning back excessively, not squeezing at bottom"
+    },
+    {
+      "id": "ex012",
+      "name": "Cable Row",
+      "category": "Back",
+      "muscleGroups": ["back", "biceps"],
+      "difficulty": "beginner",
+      "environments": ["gym"],
+      "formTips": "Sit upright, pull handle to ribcage, squeeze shoulder blades, control return",
+      "commonMistakes": "Rounding back, pulling too high, jerky movements"
+    },
+    {
+      "id": "ex013",
+      "name": "Shoulder Press Machine",
+      "category": "Shoulders",
+      "muscleGroups": ["shoulders", "triceps"],
+      "difficulty": "beginner",
+      "environments": ["gym"],
+      "formTips": "Sit upright, press handles overhead, control descent, don't lock elbows",
+      "commonMistakes": "Leaning back, pressing at an angle, jerky movements"
+    },
+    {
+      "id": "ex014",
+      "name": "Dumbbell Shoulder Press",
+      "category": "Shoulders",
+      "muscleGroups": ["shoulders", "triceps"],
+      "difficulty": "intermediate",
+      "environments": ["gym"],
+      "formTips": "Dumbbells at shoulder height, press straight overhead, control descent",
+      "commonMistakes": "Dumbbells too low at start, pressing at an angle, jerky movements"
+    },
+    {
+      "id": "ex015",
+      "name": "Lateral Raise",
+      "category": "Shoulders",
+      "muscleGroups": ["shoulders"],
+      "difficulty": "beginner",
+      "environments": ["gym"],
+      "formTips": "Slight bend in elbows, raise dumbbells to shoulder height, control descent",
+      "commonMistakes": "Elbows too straight, raising too high, using momentum"
+    },
+    {
+      "id": "ex016",
+      "name": "Bicep Curls",
+      "category": "Arms",
+      "muscleGroups": ["biceps"],
+      "difficulty": "beginner",
+      "environments": ["gym"],
+      "formTips": "Keep elbows stationary, curl smoothly to shoulder height, control descent",
+      "commonMistakes": "Moving elbows forward, swinging weight, not fully extending"
+    },
+    {
+      "id": "ex017",
+      "name": "Tricep Dips Machine",
+      "category": "Arms",
+      "muscleGroups": ["triceps"],
+      "difficulty": "beginner",
+      "environments": ["gym"],
+      "formTips": "Sit upright, push handles down, extend arms fully, control return",
+      "commonMistakes": "Jerky movements, not extending fully, leaning forward"
+    },
+    {
+      "id": "ex018",
+      "name": "Tricep Rope Pushdown",
+      "category": "Arms",
+      "muscleGroups": ["triceps"],
+      "difficulty": "beginner",
+      "environments": ["gym"],
+      "formTips": "Elbows at sides, push rope down, fully extend arms, control return",
+      "commonMistakes": "Moving elbows away from body, not extending fully, jerky movements"
+    },
+    {
+      "id": "ex019",
+      "name": "Machine Chest Fly",
+      "category": "Chest",
+      "muscleGroups": ["chest"],
+      "difficulty": "beginner",
+      "environments": ["gym"],
+      "formTips": "Sit upright, bring handles together smoothly, squeeze at center, control return",
+      "commonMistakes": "Jerky movements, not bringing handles together, leaning back"
+    },
+    {
+      "id": "ex020",
+      "name": "Hack Squat Machine",
+      "category": "Legs",
+      "muscleGroups": ["quadriceps", "hamstrings", "glutes"],
+      "difficulty": "intermediate",
+      "environments": ["gym"],
+      "formTips": "Feet shoulder-width apart, lower until knees at 90 degrees, drive through heels",
+      "commonMistakes": "Knees caving inward, going too deep, locking knees at top"
+    },
+    {
+      "id": "ex021",
+      "name": "Smith Machine Squat",
+      "category": "Legs",
+      "muscleGroups": ["quadriceps", "hamstrings", "glutes"],
+      "difficulty": "beginner",
+      "environments": ["gym"],
+      "formTips": "Feet slightly forward, lower until knees at 90 degrees, drive through heels",
+      "commonMistakes": "Feet too far forward, going too deep, jerky movements"
+    },
+    {
+      "id": "ex022",
+      "name": "Smith Machine Bench Press",
+      "category": "Chest",
+      "muscleGroups": ["chest", "triceps", "shoulders"],
+      "difficulty": "beginner",
+      "environments": ["gym"],
+      "formTips": "Feet flat, lower bar to mid-chest, press straight up, control descent",
+      "commonMistakes": "Bouncing bar, elbows flaring too wide, feet off floor"
+    },
+    {
+      "id": "ex023",
+      "name": "Smith Machine Rows",
+      "category": "Back",
+      "muscleGroups": ["back", "biceps"],
+      "difficulty": "beginner",
+      "environments": ["gym"],
+      "formTips": "Hinge at hips, pull bar to lower chest, squeeze shoulder blades, control descent",
+      "commonMistakes": "Rounding back, pulling too high, jerky movements"
+    },
+    {
+      "id": "ex024",
+      "name": "Cable Bicep Curls",
+      "category": "Arms",
+      "muscleGroups": ["biceps"],
+      "difficulty": "beginner",
+      "environments": ["gym"],
+      "formTips": "Keep elbows stationary, curl smoothly, maintain tension throughout",
+      "commonMistakes": "Moving elbows forward, swinging cable, not fully extending"
+    },
+    {
+      "id": "ex025",
+      "name": "Machine Shoulder Press",
+      "category": "Shoulders",
+      "muscleGroups": ["shoulders", "triceps"],
+      "difficulty": "beginner",
+      "environments": ["gym"],
+      "formTips": "Sit upright, press handles overhead, control descent, don't lock elbows",
+      "commonMistakes": "Leaning back, pressing at angle, jerky movements"
+    },
+    {
+      "id": "ex026",
+      "name": "Dumbbell Flyes",
+      "category": "Chest",
+      "muscleGroups": ["chest"],
+      "difficulty": "intermediate",
+      "environments": ["gym"],
+      "formTips": "Slight bend in elbows, lower dumbbells in arc motion, squeeze at top",
+      "commonMistakes": "Elbows too straight, not controlling descent, jerky movements"
+    },
+    {
+      "id": "ex027",
+      "name": "Dumbbell Pullovers",
+      "category": "Chest",
+      "muscleGroups": ["chest", "back"],
+      "difficulty": "intermediate",
+      "environments": ["gym"],
+      "formTips": "Lie perpendicular on bench, dumbbell above chest, pull over in arc motion",
+      "commonMistakes": "Jerky movements, not controlling descent, elbows too straight"
+    },
+    {
+      "id": "ex028",
+      "name": "Incline Dumbbell Press",
+      "category": "Chest",
+      "muscleGroups": ["chest", "shoulders", "triceps"],
+      "difficulty": "intermediate",
+      "environments": ["gym"],
+      "formTips": "Incline at 45 degrees, press dumbbells up, control descent, elbows at 45 degrees",
+      "commonMistakes": "Incline too steep, pressing at angle, elbows flaring too wide"
+    },
+    {
+      "id": "ex029",
+      "name": "Decline Dumbbell Press",
+      "category": "Chest",
+      "muscleGroups": ["chest", "triceps"],
+      "difficulty": "intermediate",
+      "environments": ["gym"],
+      "formTips": "Decline at 30 degrees, press dumbbells up, control descent, elbows at 45 degrees",
+      "commonMistakes": "Decline too steep, pressing at angle, jerky movements"
+    },
+    {
+      "id": "ex030",
+      "name": "Dumbbell Shrugs",
+      "category": "Shoulders",
+      "muscleGroups": ["shoulders", "traps"],
+      "difficulty": "beginner",
+      "environments": ["gym"],
+      "formTips": "Hold dumbbells at sides, shrug shoulders up, squeeze at top, control descent",
+      "commonMistakes": "Rolling shoulders, jerky movements, not squeezing at top"
+    },
+    {
+      "id": "ex031",
+      "name": "Barbell Shrugs",
+      "category": "Shoulders",
+      "muscleGroups": ["shoulders", "traps"],
+      "difficulty": "beginner",
+      "environments": ["gym"],
+      "formTips": "Hold barbell at hips, shrug shoulders up, squeeze at top, control descent",
+      "commonMistakes": "Rolling shoulders, jerky movements, not squeezing at top"
+    },
+    {
+      "id": "ex032",
+      "name": "Cable Lateral Raise",
+      "category": "Shoulders",
+      "muscleGroups": ["shoulders"],
+      "difficulty": "intermediate",
+      "environments": ["gym"],
+      "formTips": "Slight bend in elbows, raise cable to shoulder height, control descent",
+      "commonMistakes": "Elbows too straight, raising too high, using momentum"
+    },
+    {
+      "id": "ex033",
+      "name": "Machine Leg Press",
+      "category": "Legs",
+      "muscleGroups": ["quadriceps", "hamstrings", "glutes"],
+      "difficulty": "beginner",
+      "environments": ["gym"],
+      "formTips": "Feet shoulder-width apart, lower until knees at 90 degrees, drive through heels",
+      "commonMistakes": "Knees caving inward, going too deep, locking knees at top"
+    },
+    {
+      "id": "ex034",
+      "name": "Seated Leg Curl",
+      "category": "Legs",
+      "muscleGroups": ["hamstrings"],
+      "difficulty": "beginner",
+      "environments": ["gym"],
+      "formTips": "Sit upright, curl legs up smoothly, control descent, keep back on pad",
+      "commonMistakes": "Lifting back off pad, jerky movements, not controlling descent"
+    },
+    {
+      "id": "ex035",
+      "name": "Standing Leg Curl",
+      "category": "Legs",
+      "muscleGroups": ["hamstrings"],
+      "difficulty": "beginner",
+      "environments": ["gym"],
+      "formTips": "Stand upright, curl leg up smoothly, control descent, maintain balance",
+      "commonMistakes": "Jerky movements, leaning forward, not controlling descent"
+    },
+    {
+      "id": "ex036",
+      "name": "Calf Raises Machine",
+      "category": "Legs",
+      "muscleGroups": ["calves"],
+      "difficulty": "beginner",
+      "environments": ["gym"],
+      "formTips": "Rise up on toes, squeeze at top, control descent, keep knees straight",
+      "commonMistakes": "Jerky movements, not squeezing at top, bending knees"
+    },
+    {
+      "id": "ex037",
+      "name": "Seated Calf Raises",
+      "category": "Legs",
+      "muscleGroups": ["calves"],
+      "difficulty": "beginner",
+      "environments": ["gym"],
+      "formTips": "Sit upright, rise up on toes, squeeze at top, control descent",
+      "commonMistakes": "Jerky movements, not squeezing at top, not controlling descent"
+    },
+    {
+      "id": "ex038",
+      "name": "Dumbbell Lateral Raise",
+      "category": "Shoulders",
+      "muscleGroups": ["shoulders"],
+      "difficulty": "beginner",
+      "environments": ["gym"],
+      "formTips": "Slight bend in elbows, raise dumbbells to shoulder height, control descent",
+      "commonMistakes": "Elbows too straight, raising too high, using momentum"
+    },
+    {
+      "id": "ex039",
+      "name": "Dumbbell Reverse Fly",
+      "category": "Back",
+      "muscleGroups": ["back", "shoulders"],
+      "difficulty": "intermediate",
+      "environments": ["gym"],
+      "formTips": "Hinge at hips, raise dumbbells out to sides, squeeze shoulder blades",
+      "commonMistakes": "Rounding back, raising too high, jerky movements"
+    },
+    {
+      "id": "ex040",
+      "name": "Cable Reverse Fly",
+      "category": "Back",
+      "muscleGroups": ["back", "shoulders"],
+      "difficulty": "intermediate",
+      "environments": ["gym"],
+      "formTips": "Slight bend in elbows, pull cables out to sides, squeeze shoulder blades",
+      "commonMistakes": "Elbows too straight, not squeezing at top, jerky movements"
+    },
+    {
+      "id": "ex041",
+      "name": "Machine Reverse Fly",
+      "category": "Back",
+      "muscleGroups": ["back", "shoulders"],
+      "difficulty": "beginner",
+      "environments": ["gym"],
+      "formTips": "Sit upright, pull handles out to sides, squeeze shoulder blades, control return",
+      "commonMistakes": "Jerky movements, not squeezing at top, leaning forward"
+    },
+    {
+      "id": "ex042",
+      "name": "Barbell Front Squat",
+      "category": "Legs",
+      "muscleGroups": ["quadriceps", "core"],
+      "difficulty": "advanced",
+      "environments": ["gym"],
+      "formTips": "Bar on shoulders, chest up, knees tracking over toes, drive through heels",
+      "commonMistakes": "Elbows dropping, rounding back, heels rising off floor"
+    },
+    {
+      "id": "ex043",
+      "name": "Barbell Overhead Press",
+      "category": "Shoulders",
+      "muscleGroups": ["shoulders", "triceps", "core"],
+      "difficulty": "advanced",
+      "environments": ["gym"],
+      "formTips": "Bar at shoulder height, press straight overhead, core engaged, neutral spine",
+      "commonMistakes": "Arching back excessively, pressing at angle, jerky movements"
+    },
+    {
+      "id": "ex044",
+      "name": "Barbell Incline Bench Press",
+      "category": "Chest",
+      "muscleGroups": ["chest", "shoulders", "triceps"],
+      "difficulty": "intermediate",
+      "environments": ["gym"],
+      "formTips": "Incline at 45 degrees, lower bar to upper chest, press up, elbows at 45 degrees",
+      "commonMistakes": "Incline too steep, pressing at angle, elbows flaring too wide"
+    },
+    {
+      "id": "ex045",
+      "name": "Barbell Decline Bench Press",
+      "category": "Chest",
+      "muscleGroups": ["chest", "triceps"],
+      "difficulty": "intermediate",
+      "environments": ["gym"],
+      "formTips": "Decline at 30 degrees, lower bar to lower chest, press up, elbows at 45 degrees",
+      "commonMistakes": "Decline too steep, pressing at angle, jerky movements"
+    },
+    {
+      "id": "ex046",
+      "name": "Dumbbell Bench Press",
+      "category": "Chest",
+      "muscleGroups": ["chest", "triceps", "shoulders"],
+      "difficulty": "intermediate",
+      "environments": ["gym"],
+      "formTips": "Dumbbells at shoulder height, press straight up, control descent, elbows at 45 degrees",
+      "commonMistakes": "Dumbbells too high or low at start, pressing at angle, jerky movements"
+    },
+    {
+      "id": "ex047",
+      "name": "Dumbbell Incline Bench Press",
+      "category": "Chest",
+      "muscleGroups": ["chest", "shoulders", "triceps"],
+      "difficulty": "intermediate",
+      "environments": ["gym"],
+      "formTips": "Incline at 45 degrees, press dumbbells up, control descent, elbows at 45 degrees",
+      "commonMistakes": "Incline too steep, pressing at angle, jerky movements"
+    },
+    {
+      "id": "ex048",
+      "name": "Dumbbell Decline Bench Press",
+      "category": "Chest",
+      "muscleGroups": ["chest", "triceps"],
+      "difficulty": "intermediate",
+      "environments": ["gym"],
+      "formTips": "Decline at 30 degrees, press dumbbells up, control descent, elbows at 45 degrees",
+      "commonMistakes": "Decline too steep, pressing at angle, jerky movements"
+    },
+    {
+      "id": "ex049",
+      "name": "Barbell Bent-Over Rows",
+      "category": "Back",
+      "muscleGroups": ["back", "biceps", "core"],
+      "difficulty": "intermediate",
+      "environments": ["gym"],
+      "formTips": "Hinge at hips, chest nearly parallel to floor, pull bar to lower chest, squeeze shoulder blades",
+      "commonMistakes": "Rounding back, pulling to waist, jerky movements"
+    },
+    {
+      "id": "ex050",
+      "name": "Dumbbell Bent-Over Rows",
+      "category": "Back",
+      "muscleGroups": ["back", "biceps"],
+      "difficulty": "intermediate",
+      "environments": ["gym"],
+      "formTips": "Hinge at hips, pull dumbbells to ribcage, squeeze shoulder blades, control descent",
+      "commonMistakes": "Rounding back, pulling too high, jerky movements"
+    },
+    {
+      "id": "ex051",
+      "name": "T-Bar Rows",
+      "category": "Back",
+      "muscleGroups": ["back", "biceps"],
+      "difficulty": "intermediate",
+      "environments": ["gym"],
+      "formTips": "Hinge at hips, pull bar to chest, squeeze shoulder blades, control descent",
+      "commonMistakes": "Rounding back, pulling too high, jerky movements"
+    },
+    {
+      "id": "ex052",
+      "name": "Seal Rows",
+      "category": "Back",
+      "muscleGroups": ["back", "biceps"],
+      "difficulty": "intermediate",
+      "environments": ["gym"],
+      "formTips": "Lie on incline bench, pull bar to chest, squeeze shoulder blades, control descent",
+      "commonMistakes": "Jerky movements, not squeezing at top, not controlling descent"
+    },
+    {
+      "id": "ex053",
+      "name": "Chest-Supported Rows",
+      "category": "Back",
+      "muscleGroups": ["back", "biceps"],
+      "difficulty": "intermediate",
+      "environments": ["gym"],
+      "formTips": "Chest on incline, pull bar to chest, squeeze shoulder blades, control descent",
+      "commonMistakes": "Jerky movements, not squeezing at top, not controlling descent"
+    },
+    {
+      "id": "ex054",
+      "name": "Pendulum Squat",
+      "category": "Legs",
+      "muscleGroups": ["quadriceps", "hamstrings", "glutes"],
+      "difficulty": "intermediate",
+      "environments": ["gym"],
+      "formTips": "Feet shoulder-width apart, lower until knees at 90 degrees, drive through heels",
+      "commonMistakes": "Knees caving inward, going too deep, locking knees at top"
+    },
+    {
+      "id": "ex055",
+      "name": "V-Squat Machine",
+      "category": "Legs",
+      "muscleGroups": ["quadriceps", "hamstrings", "glutes"],
+      "difficulty": "intermediate",
+      "environments": ["gym"],
+      "formTips": "Feet shoulder-width apart, lower until knees at 90 degrees, drive through heels",
+      "commonMistakes": "Knees caving inward, going too deep, locking knees at top"
+    },
+    {
+      "id": "ex056",
+      "name": "Push-ups",
+      "category": "Chest",
+      "muscleGroups": ["chest", "triceps", "shoulders"],
+      "difficulty": "beginner",
+      "environments": ["home", "hotel", "outside"],
+      "formTips": "Hands shoulder-width apart, body in straight line, lower until chest near floor, press back up",
+      "commonMistakes": "Hips sagging, elbows flaring too wide, not going deep enough"
+    },
+    {
+      "id": "ex057",
+      "name": "Wide-Grip Push-ups",
+      "category": "Chest",
+      "muscleGroups": ["chest", "shoulders"],
+      "difficulty": "intermediate",
+      "environments": ["home", "hotel", "outside"],
+      "formTips": "Hands wider than shoulders, body in straight line, lower until chest near floor",
+      "commonMistakes": "Hips sagging, not going deep enough, elbows flaring too much"
+    },
+    {
+      "id": "ex058",
+      "name": "Diamond Push-ups",
+      "category": "Chest",
+      "muscleGroups": ["triceps", "chest"],
+      "difficulty": "intermediate",
+      "environments": ["home", "hotel", "outside"],
+      "formTips": "Hands close together forming diamond, body in straight line, lower until chest near hands",
+      "commonMistakes": "Hips sagging, elbows flaring, not going deep enough"
+    },
+    {
+      "id": "ex059",
+      "name": "Incline Push-ups",
+      "category": "Chest",
+      "muscleGroups": ["chest", "triceps", "shoulders"],
+      "difficulty": "beginner",
+      "environments": ["home", "hotel"],
+      "formTips": "Hands on elevated surface, body in straight line, lower until chest near surface",
+      "commonMistakes": "Hips sagging, elbows flaring too wide, not going deep enough"
+    },
+    {
+      "id": "ex060",
+      "name": "Decline Push-ups",
+      "category": "Chest",
+      "muscleGroups": ["chest", "shoulders"],
+      "difficulty": "advanced",
+      "environments": ["home", "hotel", "outside"],
+      "formTips": "Feet elevated, hands on floor, body in straight line, lower until chest near floor",
+      "commonMistakes": "Hips sagging, elbows flaring too wide, not going deep enough"
+    },
+    {
+      "id": "ex061",
+      "name": "Plank",
+      "category": "Core",
+      "muscleGroups": ["core"],
+      "difficulty": "beginner",
+      "environments": ["home", "hotel", "outside"],
+      "formTips": "Body in straight line, engage core, don't let hips sag, maintain neutral spine",
+      "commonMistakes": "Hips sagging, hips too high, holding breath"
+    },
+    {
+      "id": "ex062",
+      "name": "Side Plank",
+      "category": "Core",
+      "muscleGroups": ["core", "shoulders"],
+      "difficulty": "intermediate",
+      "environments": ["home", "hotel", "outside"],
+      "formTips": "Body in straight line, engage core, don't let hips sag, stack feet or stagger them",
+      "commonMistakes": "Hips sagging, rotating torso, holding breath"
+    },
+    {
+      "id": "ex063",
+      "name": "Plank with Shoulder Taps",
+      "category": "Core",
+      "muscleGroups": ["core", "shoulders"],
+      "difficulty": "intermediate",
+      "environments": ["home", "hotel", "outside"],
+      "formTips": "Plank position, tap opposite shoulder, maintain stability, keep hips level",
+      "commonMistakes": "Hips rotating, moving too fast, not maintaining plank position"
+    },
+    {
+      "id": "ex064",
+      "name": "Plank Jacks",
+      "category": "Core",
+      "muscleGroups": ["core", "shoulders"],
+      "difficulty": "intermediate",
+      "environments": ["home", "hotel", "outside"],
+      "formTips": "Plank position, jump feet apart and together, maintain plank form, controlled movement",
+      "commonMistakes": "Hips sagging, moving too fast, not maintaining plank position"
+    },
+    {
+      "id": "ex065",
+      "name": "Mountain Climbers",
+      "category": "Core",
+      "muscleGroups": ["core", "shoulders", "quadriceps"],
+      "difficulty": "intermediate",
+      "environments": ["home", "hotel", "outside"],
+      "formTips": "Plank position, drive knees toward chest alternately, maintain plank form, controlled pace",
+      "commonMistakes": "Hips sagging, moving too fast, not maintaining plank position"
+    },
+    {
+      "id": "ex066",
+      "name": "Burpees",
+      "category": "Full Body",
+      "muscleGroups": ["chest", "core", "quadriceps", "hamstrings"],
+      "difficulty": "advanced",
+      "environments": ["home", "hotel", "outside"],
+      "formTips": "Squat down, hands on floor, jump feet back, push-up, jump feet forward, stand up",
+      "commonMistakes": "Not going deep in squat, jerky movements, not fully extending in push-up"
+    },
+    {
+      "id": "ex067",
+      "name": "Bodyweight Squats",
+      "category": "Legs",
+      "muscleGroups": ["quadriceps", "hamstrings", "glutes"],
+      "difficulty": "beginner",
+      "environments": ["home", "hotel", "outside"],
+      "formTips": "Feet shoulder-width apart, lower until thighs parallel to floor, drive through heels",
+      "commonMistakes": "Knees caving inward, not going deep enough, heels rising off floor"
+    },
+    {
+      "id": "ex068",
+      "name": "Jump Squats",
+      "category": "Legs",
+      "muscleGroups": ["quadriceps", "hamstrings", "glutes"],
+      "difficulty": "intermediate",
+      "environments": ["home", "hotel", "outside"],
+      "formTips": "Squat down, jump up explosively, land softly, immediately squat again",
+      "commonMistakes": "Not going deep in squat, jerky landings, not controlling descent"
+    },
+    {
+      "id": "ex069",
+      "name": "Lunges",
+      "category": "Legs",
+      "muscleGroups": ["quadriceps", "hamstrings", "glutes"],
+      "difficulty": "beginner",
+      "environments": ["home", "hotel", "outside"],
+      "formTips": "Step forward, lower back knee toward floor, front knee at 90 degrees, push back to start",
+      "commonMistakes": "Front knee going past toes, not going deep enough, jerky movements"
+    },
+    {
+      "id": "ex070",
+      "name": "Reverse Lunges",
+      "category": "Legs",
+      "muscleGroups": ["quadriceps", "hamstrings", "glutes"],
+      "difficulty": "beginner",
+      "environments": ["home", "hotel", "outside"],
+      "formTips": "Step back, lower back knee toward floor, front knee at 90 degrees, push forward to start",
+      "commonMistakes": "Front knee going past toes, not going deep enough, jerky movements"
+    },
+    {
+      "id": "ex071",
+      "name": "Walking Lunges",
+      "category": "Legs",
+      "muscleGroups": ["quadriceps", "hamstrings", "glutes"],
+      "difficulty": "intermediate",
+      "environments": ["home", "outside"],
+      "formTips": "Step forward into lunge, push back to standing, continue walking forward",
+      "commonMistakes": "Front knee going past toes, not going deep enough, jerky movements"
+    },
+    {
+      "id": "ex072",
+      "name": "Jump Lunges",
+      "category": "Legs",
+      "muscleGroups": ["quadriceps", "hamstrings", "glutes"],
+      "difficulty": "advanced",
+      "environments": ["home", "outside"],
+      "formTips": "Lunge position, jump and switch legs mid-air, land in lunge, continue alternating",
+      "commonMistakes": "Not going deep in lunge, jerky landings, not controlling descent"
+    },
+    {
+      "id": "ex073",
+      "name": "Glute Bridges",
+      "category": "Legs",
+      "muscleGroups": ["glutes", "hamstrings"],
+      "difficulty": "beginner",
+      "environments": ["home", "hotel", "outside"],
+      "formTips": "Lie on back, knees bent, feet flat, push hips up, squeeze glutes at top",
+      "commonMistakes": "Not squeezing glutes, not going high enough, jerky movements"
+    },
+    {
+      "id": "ex074",
+      "name": "Single-Leg Glute Bridges",
+      "category": "Legs",
+      "muscleGroups": ["glutes", "hamstrings"],
+      "difficulty": "intermediate",
+      "environments": ["home", "hotel", "outside"],
+      "formTips": "Lie on back, one leg up, push hips up with other leg, squeeze glutes at top",
+      "commonMistakes": "Not squeezing glutes, not going high enough, hips rotating"
+    },
+    {
+      "id": "ex075",
+      "name": "Calf Raises",
+      "category": "Legs",
+      "muscleGroups": ["calves"],
+      "difficulty": "beginner",
+      "environments": ["home", "hotel", "outside"],
+      "formTips": "Stand upright, rise up on toes, squeeze at top, control descent",
+      "commonMistakes": "Jerky movements, not squeezing at top, not controlling descent"
+    },
+    {
+      "id": "ex076",
+      "name": "Resistance Band Bicep Curls",
+      "category": "Arms",
+      "muscleGroups": ["biceps"],
+      "difficulty": "beginner",
+      "environments": ["home"],
+      "formTips": "Stand on band, curl hands up, keep elbows stationary, control descent",
+      "commonMistakes": "Moving elbows forward, swinging band, not fully extending"
+    },
+    {
+      "id": "ex077",
+      "name": "Resistance Band Tricep Extensions",
+      "category": "Arms",
+      "muscleGroups": ["triceps"],
+      "difficulty": "beginner",
+      "environments": ["home"],
+      "formTips": "Hold band overhead, extend arms down, keep elbows stationary, control descent",
+      "commonMistakes": "Moving elbows forward, not extending fully, jerky movements"
+    },
+    {
+      "id": "ex078",
+      "name": "Resistance Band Chest Press",
+      "category": "Chest",
+      "muscleGroups": ["chest", "triceps", "shoulders"],
+      "difficulty": "beginner",
+      "environments": ["home"],
+      "formTips": "Band around back, press forward, control return, maintain tension",
+      "commonMistakes": "Not maintaining tension, jerky movements, not fully extending"
+    },
+    {
+      "id": "ex079",
+      "name": "Resistance Band Rows",
+      "category": "Back",
+      "muscleGroups": ["back", "biceps"],
+      "difficulty": "beginner",
+      "environments": ["home"],
+      "formTips": "Band around anchor, pull toward body, squeeze shoulder blades, control return",
+      "commonMistakes": "Not squeezing shoulder blades, jerky movements, not fully extending"
+    },
+    {
+      "id": "ex080",
+      "name": "Resistance Band Lateral Raises",
+      "category": "Shoulders",
+      "muscleGroups": ["shoulders"],
+      "difficulty": "beginner",
+      "environments": ["home"],
+      "formTips": "Stand on band, raise arms to sides, control descent, maintain tension",
+      "commonMistakes": "Jerky movements, raising too high, not maintaining tension"
+    },
+    {
+      "id": "ex081",
+      "name": "Dumbbell Squats",
+      "category": "Legs",
+      "muscleGroups": ["quadriceps", "hamstrings", "glutes"],
+      "difficulty": "intermediate",
+      "environments": ["home"],
+      "formTips": "Hold dumbbells, lower into squat, drive through heels, maintain upright torso",
+      "commonMistakes": "Knees caving inward, rounding back, not going deep enough"
+    },
+    {
+      "id": "ex082",
+      "name": "Dumbbell Lunges",
+      "category": "Legs",
+      "muscleGroups": ["quadriceps", "hamstrings", "glutes"],
+      "difficulty": "intermediate",
+      "environments": ["home"],
+      "formTips": "Hold dumbbells, step forward into lunge, front knee at 90 degrees, push back",
+      "commonMistakes": "Front knee going past toes, not going deep enough, jerky movements"
+    },
+    {
+      "id": "ex083",
+      "name": "Dumbbell Deadlifts",
+      "category": "Back",
+      "muscleGroups": ["back", "hamstrings", "glutes"],
+      "difficulty": "intermediate",
+      "environments": ["home"],
+      "formTips": "Hinge at hips, keep back straight, dumbbells close to body, drive through heels",
+      "commonMistakes": "Rounding back, dumbbells drifting away from body, jerky movements"
+    },
+    {
+      "id": "ex084",
+      "name": "Dumbbell Rows",
+      "category": "Back",
+      "muscleGroups": ["back", "biceps"],
+      "difficulty": "beginner",
+      "environments": ["home"],
+      "formTips": "Hinge at hips, pull dumbbells to ribcage, squeeze shoulder blades, control descent",
+      "commonMistakes": "Rounding back, pulling too high, jerky movements"
+    },
+    {
+      "id": "ex085",
+      "name": "Dumbbell Shoulder Press",
+      "category": "Shoulders",
+      "muscleGroups": ["shoulders", "triceps"],
+      "difficulty": "intermediate",
+      "environments": ["home"],
+      "formTips": "Dumbbells at shoulder height, press overhead, control descent, don't lock elbows",
+      "commonMistakes": "Dumbbells too low at start, pressing at angle, jerky movements"
+    },
+    {
+      "id": "ex086",
+      "name": "Sprints",
+      "category": "Cardio",
+      "muscleGroups": ["quadriceps", "hamstrings", "glutes"],
+      "difficulty": "advanced",
+      "environments": ["outside"],
+      "formTips": "High knee drive, explosive push-off, lean slightly forward, maintain form",
+      "commonMistakes": "Overstriding, not driving knees high, poor form at high speed"
+    },
+    {
+      "id": "ex087",
+      "name": "Long Distance Running",
+      "category": "Cardio",
+      "muscleGroups": ["quadriceps", "hamstrings", "glutes", "calves"],
+      "difficulty": "intermediate",
+      "environments": ["outside"],
+      "formTips": "Steady pace, upright posture, land mid-foot, maintain consistent breathing",
+      "commonMistakes": "Overstriding, heel striking, poor posture, inconsistent pace"
+    },
+    {
+      "id": "ex088",
+      "name": "Hill Sprints",
+      "category": "Cardio",
+      "muscleGroups": ["quadriceps", "hamstrings", "glutes"],
+      "difficulty": "advanced",
+      "environments": ["outside"],
+      "formTips": "Explosive acceleration uphill, high knee drive, lean into hill, maintain form",
+      "commonMistakes": "Overstriding, not driving knees high, poor form, stopping too early"
+    },
+    {
+      "id": "ex089",
+      "name": "Hill Repeats",
+      "category": "Cardio",
+      "muscleGroups": ["quadriceps", "hamstrings", "glutes"],
+      "difficulty": "advanced",
+      "environments": ["outside"],
+      "formTips": "Sprint up hill, walk down recovery, repeat, maintain consistent effort",
+      "commonMistakes": "Not pushing hard enough, not recovering properly, poor form"
+    },
+    {
+      "id": "ex090",
+      "name": "Park Bench Jumps",
+      "category": "Legs",
+      "muscleGroups": ["quadriceps", "hamstrings", "glutes"],
+      "difficulty": "intermediate",
+      "environments": ["outside"],
+      "formTips": "Jump onto bench explosively, land softly, step down, repeat",
+      "commonMistakes": "Not jumping high enough, jerky landings, not controlling descent"
+    },
+    {
+      "id": "ex091",
+      "name": "Park Bench Step-ups",
+      "category": "Legs",
+      "muscleGroups": ["quadriceps", "hamstrings", "glutes"],
+      "difficulty": "beginner",
+      "environments": ["outside"],
+      "formTips": "Step up onto bench, drive through front heel, step down, repeat",
+      "commonMistakes": "Not going high enough, jerky movements, not controlling descent"
+    },
+    {
+      "id": "ex092",
+      "name": "Park Bench Dips",
+      "category": "Arms",
+      "muscleGroups": ["triceps", "chest"],
+      "difficulty": "intermediate",
+      "environments": ["outside"],
+      "formTips": "Hands on bench behind you, lower body by bending elbows, press back up",
+      "commonMistakes": "Elbows flaring too wide, not going deep enough, jerky movements"
+    },
+    {
+      "id": "ex093",
+      "name": "Park Bench Push-ups",
+      "category": "Chest",
+      "muscleGroups": ["chest", "triceps", "shoulders"],
+      "difficulty": "beginner",
+      "environments": ["outside"],
+      "formTips": "Hands on bench, body in straight line, lower until chest near bench",
+      "commonMistakes": "Hips sagging, elbows flaring too wide, not going deep enough"
+    },
+    {
+      "id": "ex094",
+      "name": "Pull-ups",
+      "category": "Back",
+      "muscleGroups": ["back", "biceps"],
+      "difficulty": "advanced",
+      "environments": ["outside"],
+      "formTips": "Grip slightly wider than shoulders, pull body up, chin over bar, control descent",
+      "commonMistakes": "Not going high enough, jerky movements, not controlling descent"
+    },
+    {
+      "id": "ex095",
+      "name": "Chin-ups",
+      "category": "Back",
+      "muscleGroups": ["back", "biceps"],
+      "difficulty": "advanced",
+      "environments": ["outside"],
+      "formTips": "Grip shoulder-width, pull body up, chin over bar, control descent",
+      "commonMistakes": "Not going high enough, jerky movements, not controlling descent"
+    },
+    {
+      "id": "ex096",
+      "name": "Assisted Pull-ups",
+      "category": "Back",
+      "muscleGroups": ["back", "biceps"],
+      "difficulty": "intermediate",
+      "environments": ["outside"],
+      "formTips": "Use assistance band, pull body up, chin over bar, control descent",
+      "commonMistakes": "Not going high enough, jerky movements, not controlling descent"
+    },
+    {
+      "id": "ex097",
+      "name": "Hanging Leg Raises",
+      "category": "Core",
+      "muscleGroups": ["core"],
+      "difficulty": "advanced",
+      "environments": ["outside"],
+      "formTips": "Hang from bar, raise legs to horizontal, control descent, maintain grip",
+      "commonMistakes": "Swinging body, not raising high enough, jerky movements"
+    },
+    {
+      "id": "ex098",
+      "name": "Hanging Knee Tucks",
+      "category": "Core",
+      "muscleGroups": ["core"],
+      "difficulty": "intermediate",
+      "environments": ["outside"],
+      "formTips": "Hang from bar, raise knees to chest, control descent, maintain grip",
+      "commonMistakes": "Swinging body, not raising high enough, jerky movements"
+    },
+    {
+      "id": "ex099",
+      "name": "Tricep Dips",
+      "category": "Arms",
+      "muscleGroups": ["triceps", "chest"],
+      "difficulty": "intermediate",
+      "environments": ["outside"],
+      "formTips": "Grip parallel bars, lower body by bending elbows, press back up, lean forward slightly",
+      "commonMistakes": "Elbows flaring too wide, not going deep enough, jerky movements"
+    },
+    {
+      "id": "ex100",
+      "name": "Outdoor Running",
+      "category": "Cardio",
+      "muscleGroups": ["quadriceps", "hamstrings", "glutes", "calves"],
+      "difficulty": "beginner",
+      "environments": ["outside"],
+      "formTips": "Steady pace, upright posture, land mid-foot, maintain consistent breathing",
+      "commonMistakes": "Overstriding, heel striking, poor posture, inconsistent pace"
+    }
+  ]
+}
