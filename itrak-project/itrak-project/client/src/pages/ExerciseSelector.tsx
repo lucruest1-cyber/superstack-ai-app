@@ -1,6 +1,6 @@
 import { useState, useMemo } from "react";
 import { useLocation, useSearch } from "wouter";
-import { ArrowLeft, Search, Plus, X } from "lucide-react";
+import { ArrowLeft, Search, Plus, X, AlertCircle, RefreshCw } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
@@ -44,10 +44,11 @@ export default function ExerciseSelector() {
   } | null>(null);
   const [form, setForm] = useState<LogForm>({ sets: "3", reps: "10", weight: "", notes: "" });
 
-  const { data: exercises = [], isLoading } = trpc.exercises.listByEnvironment.useQuery(
-    { environment: activeEnv },
-    { staleTime: 5 * 60 * 1000 }
-  );
+  const { data: exercises = [], isLoading, isError, error, refetch } =
+    trpc.exercises.listByEnvironment.useQuery(
+      { environment: activeEnv },
+      { staleTime: 5 * 60 * 1000, retry: 1 }
+    );
   const { data: prefs } = trpc.user.getPreferences.useQuery();
   const unit = prefs?.unitPreference ?? "lbs";
 
@@ -61,22 +62,15 @@ export default function ExerciseSelector() {
   });
 
   const filtered = useMemo(() => {
-    return exercises.filter((ex) => {
-      const cat = (ex as { category?: string | null }).category ?? "";
-      if (activeMuscle !== "All" && cat !== activeMuscle) return false;
+    return (exercises as Array<typeof exercises[0] & { category?: string | null }>).filter((ex) => {
+      if (activeMuscle !== "All" && ex.category !== activeMuscle) return false;
       if (searchTerm && !ex.name.toLowerCase().includes(searchTerm.toLowerCase())) return false;
       return true;
     });
   }, [exercises, activeMuscle, searchTerm]);
 
   function selectExercise(ex: typeof filtered[0]) {
-    setSelectedExercise({
-      id: ex.id,
-      name: ex.name,
-      category: (ex as { category?: string | null }).category,
-      muscleGroups: ex.muscleGroups,
-      difficulty: ex.difficulty,
-    });
+    setSelectedExercise({ id: ex.id, name: ex.name, category: ex.category, muscleGroups: ex.muscleGroups, difficulty: ex.difficulty });
     setForm({ sets: "3", reps: "10", weight: "", notes: "" });
   }
 
@@ -85,15 +79,10 @@ export default function ExerciseSelector() {
     const sets   = parseInt(form.sets,   10);
     const reps   = parseInt(form.reps,   10);
     const weight = parseFloat(form.weight);
-    if (!sets   || sets   <= 0) { toast.error("Enter a valid number of sets");   return; }
-    if (!reps   || reps   <= 0) { toast.error("Enter a valid number of reps");   return; }
-    if (!weight || weight <= 0) { toast.error("Enter a valid weight");            return; }
-    logMutation.mutate({
-      exerciseName: selectedExercise.name,
-      environment:  activeEnv,
-      sets, reps, weight,
-      notes: form.notes || undefined,
-    });
+    if (!sets   || sets   <= 0) { toast.error("Enter a valid number of sets");  return; }
+    if (!reps   || reps   <= 0) { toast.error("Enter a valid number of reps");  return; }
+    if (isNaN(weight) || weight < 0) { toast.error("Enter a valid weight");     return; }
+    logMutation.mutate({ exerciseName: selectedExercise.name, environment: activeEnv, sets, reps, weight, notes: form.notes || undefined });
   }
 
   return (
@@ -114,13 +103,9 @@ export default function ExerciseSelector() {
       <div className="px-5 mb-3 shrink-0">
         <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
           {ENVS.map((env) => (
-            <button
-              key={env}
-              onClick={() => setActiveEnv(env)}
+            <button key={env} onClick={() => setActiveEnv(env)}
               className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
-                activeEnv === env
-                  ? "bg-red-600 border-red-600 text-white"
-                  : "bg-white/5 border-white/10 text-gray-400 hover:text-white"
+                activeEnv === env ? "bg-red-600 border-red-600 text-white" : "bg-white/5 border-white/10 text-gray-400 hover:text-white"
               }`}
             >
               {ENV_LABELS[env]}
@@ -133,13 +118,9 @@ export default function ExerciseSelector() {
       <div className="px-5 mb-4 shrink-0">
         <div className="flex gap-2 overflow-x-auto no-scrollbar pb-1">
           {MUSCLE_GROUPS.map((grp) => (
-            <button
-              key={grp}
-              onClick={() => setActiveMuscle(grp)}
+            <button key={grp} onClick={() => setActiveMuscle(grp)}
               className={`shrink-0 px-4 py-1.5 rounded-full text-xs font-semibold border transition-colors ${
-                activeMuscle === grp
-                  ? "bg-red-600 border-red-600 text-white"
-                  : "bg-white/5 border-white/10 text-gray-400 hover:text-white"
+                activeMuscle === grp ? "bg-red-600 border-red-600 text-white" : "bg-white/5 border-white/10 text-gray-400 hover:text-white"
               }`}
             >
               {grp}
@@ -153,17 +134,12 @@ export default function ExerciseSelector() {
         <div className="relative">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-500 pointer-events-none" />
           <input
-            type="text"
-            placeholder="Search exercises…"
-            value={searchTerm}
+            type="text" placeholder="Search exercises…" value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full bg-[#13131a] border border-white/10 rounded-xl pl-9 pr-10 py-2.5 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-red-600/50"
           />
           {searchTerm && (
-            <button
-              onClick={() => setSearchTerm("")}
-              className="absolute right-3 top-1/2 -translate-y-1/2"
-            >
+            <button onClick={() => setSearchTerm("")} className="absolute right-3 top-1/2 -translate-y-1/2">
               <X className="w-4 h-4 text-gray-500" />
             </button>
           )}
@@ -178,35 +154,47 @@ export default function ExerciseSelector() {
               <div key={i} className="h-[68px] rounded-xl bg-[#13131a] animate-pulse" />
             ))}
           </div>
+        ) : isError ? (
+          <div className="py-16 flex flex-col items-center gap-3 text-center px-4">
+            <div className="w-12 h-12 rounded-full bg-red-600/10 border border-red-600/20 flex items-center justify-center">
+              <AlertCircle className="w-5 h-5 text-red-400" />
+            </div>
+            <p className="text-white font-semibold text-sm">Couldn't load exercises</p>
+            <p className="text-gray-500 text-xs max-w-xs">
+              {(error as { message?: string })?.message ?? "Server error — check that FIREBASE_SERVICE_ACCOUNT_KEY is set in your Vercel environment variables."}
+            </p>
+            <button
+              onClick={() => void refetch()}
+              className="flex items-center gap-1.5 text-red-400 text-sm border border-red-400/30 px-4 py-1.5 rounded-full hover:bg-red-400/10 transition-colors mt-1"
+            >
+              <RefreshCw className="w-3.5 h-3.5" /> Retry
+            </button>
+          </div>
         ) : filtered.length === 0 ? (
           <div className="py-20 flex flex-col items-center gap-2 text-center">
             <Search className="w-8 h-8 text-gray-700" />
             <p className="text-gray-500 text-sm">No exercises found</p>
-            <p className="text-gray-700 text-xs">Try a different filter or environment</p>
+            <p className="text-gray-700 text-xs">
+              {exercises.length === 0
+                ? "No exercises in the database for this environment"
+                : "Try a different filter or search term"}
+            </p>
           </div>
         ) : (
           <div className="space-y-2">
             {filtered.map((ex) => {
               const diffStyle = DIFF_STYLE[ex.difficulty] ?? DIFF_STYLE.beginner;
               return (
-                <div
-                  key={ex.id ?? ex.name}
+                <div key={ex.id ?? ex.name}
                   className="flex items-center gap-3 rounded-xl bg-[#13131a] border border-white/5 px-4 py-3"
                 >
                   <div className="flex-1 min-w-0">
                     <p className="text-white font-semibold text-sm leading-snug">{ex.name}</p>
                     <div className="flex flex-wrap gap-1 mt-1">
                       {ex.muscleGroups?.slice(0, 3).map((m) => (
-                        <span
-                          key={m}
-                          className="text-[10px] text-gray-400 bg-white/5 border border-white/5 px-2 py-0.5 rounded-full capitalize"
-                        >
-                          {m}
-                        </span>
+                        <span key={m} className="text-[10px] text-gray-400 bg-white/5 border border-white/5 px-2 py-0.5 rounded-full capitalize">{m}</span>
                       ))}
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full capitalize border ${diffStyle}`}>
-                        {ex.difficulty}
-                      </span>
+                      <span className={`text-[10px] px-2 py-0.5 rounded-full capitalize border ${diffStyle}`}>{ex.difficulty}</span>
                     </div>
                   </div>
                   <button
@@ -225,42 +213,24 @@ export default function ExerciseSelector() {
       {/* ── Log Form Bottom Sheet ────────────────────────────────────────────── */}
       {selectedExercise && (
         <div className="fixed inset-0 z-50 flex flex-col justify-end">
-          {/* backdrop */}
-          <div
-            className="absolute inset-0 bg-black/70"
-            onClick={() => setSelectedExercise(null)}
-          />
-          {/* sheet */}
+          <div className="absolute inset-0 bg-black/70" onClick={() => setSelectedExercise(null)} />
           <div className="relative rounded-t-2xl bg-[#13131a] border-t border-white/10 px-5 pt-4 pb-10">
-            {/* drag handle */}
             <div className="w-10 h-1 rounded-full bg-white/20 mx-auto mb-5" />
+            <p className="text-white font-bold text-lg leading-tight mb-0.5">{selectedExercise.name}</p>
+            <p className="text-gray-500 text-xs mb-5 capitalize">{selectedExercise.muscleGroups?.join(" · ")}</p>
 
-            <p className="text-white font-bold text-lg leading-tight mb-0.5">
-              {selectedExercise.name}
-            </p>
-            <p className="text-gray-500 text-xs mb-5 capitalize">
-              {selectedExercise.muscleGroups?.join(" · ")}
-            </p>
-
-            {/* sets / reps / weight */}
             <div className="grid grid-cols-3 gap-3 mb-4">
               {(
                 [
-                  { label: "Sets",           key: "sets",   min: 1, step: 1,   placeholder: "3"  },
-                  { label: "Reps",           key: "reps",   min: 1, step: 1,   placeholder: "10" },
+                  { label: "Sets",            key: "sets",   min: 1, step: 1,   placeholder: "3"  },
+                  { label: "Reps",            key: "reps",   min: 1, step: 1,   placeholder: "10" },
                   { label: `Weight (${unit})`, key: "weight", min: 0, step: 2.5, placeholder: "0"  },
                 ] as const
               ).map(({ label, key, min, step, placeholder }) => (
                 <div key={key}>
-                  <label className="text-gray-500 text-[10px] font-semibold uppercase tracking-wider block mb-1.5">
-                    {label}
-                  </label>
+                  <label className="text-gray-500 text-[10px] font-semibold uppercase tracking-wider block mb-1.5">{label}</label>
                   <input
-                    type="number"
-                    inputMode="decimal"
-                    min={min}
-                    step={step}
-                    placeholder={placeholder}
+                    type="number" inputMode="decimal" min={min} step={step} placeholder={placeholder}
                     value={form[key]}
                     onChange={(e) => setForm((f) => ({ ...f, [key]: e.target.value }))}
                     className="w-full bg-[#0a0a0f] border border-white/10 rounded-xl px-2 py-3 text-white text-center text-xl font-bold focus:outline-none focus:border-red-600/50 placeholder-gray-700"
@@ -269,21 +239,15 @@ export default function ExerciseSelector() {
               ))}
             </div>
 
-            {/* notes */}
             <div className="mb-5">
-              <label className="text-gray-500 text-[10px] font-semibold uppercase tracking-wider block mb-1.5">
-                Notes (optional)
-              </label>
+              <label className="text-gray-500 text-[10px] font-semibold uppercase tracking-wider block mb-1.5">Notes (optional)</label>
               <input
-                type="text"
-                placeholder="e.g. felt strong today"
-                value={form.notes}
+                type="text" placeholder="e.g. felt strong today" value={form.notes}
                 onChange={(e) => setForm((f) => ({ ...f, notes: e.target.value }))}
                 className="w-full bg-[#0a0a0f] border border-white/10 rounded-xl px-4 py-2.5 text-white text-sm focus:outline-none focus:border-red-600/50 placeholder-gray-700"
               />
             </div>
 
-            {/* action buttons */}
             <div className="flex gap-3">
               <button
                 onClick={() => setSelectedExercise(null)}
@@ -292,8 +256,7 @@ export default function ExerciseSelector() {
                 Cancel
               </button>
               <button
-                onClick={handleLog}
-                disabled={logMutation.isPending}
+                onClick={handleLog} disabled={logMutation.isPending}
                 className="flex-1 py-3.5 rounded-xl bg-red-600 text-white text-sm font-bold hover:bg-red-700 active:bg-red-800 transition-colors disabled:opacity-50"
               >
                 {logMutation.isPending ? "Saving…" : "Log Exercise"}

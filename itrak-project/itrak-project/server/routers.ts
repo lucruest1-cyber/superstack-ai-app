@@ -69,7 +69,7 @@ export const appRouter = router({
           environment: z.enum(["gym", "home", "hotel", "outside"]),
           sets: z.number().int().positive(),
           reps: z.number().int().positive(),
-          weight: z.number().positive(),
+          weight: z.number().nonnegative(),
           notes: z.string().optional(),
         })
       )
@@ -84,6 +84,36 @@ export const appRouter = router({
           notes: input.notes,
         });
         return { success: true, id };
+      }),
+
+    logBatch: protectedProcedure
+      .input(
+        z.array(
+          z.object({
+            exerciseName: z.string().min(1),
+            environment: z.enum(["gym", "home", "hotel", "outside"]),
+            sets: z.number().int().positive(),
+            reps: z.number().int().positive(),
+            weight: z.number().nonnegative(),
+            notes: z.string().optional(),
+          })
+        ).min(1).max(20)
+      )
+      .mutation(async ({ ctx, input }) => {
+        const ids = await Promise.all(
+          input.map((ex) =>
+            db.createWorkoutLog({
+              userId: ctx.user.id,
+              name: ex.exerciseName,
+              environment: ex.environment,
+              sets: ex.sets,
+              reps: ex.reps,
+              weightLbs: ex.weight,
+              notes: ex.notes,
+            })
+          )
+        );
+        return { success: true, count: ids.length };
       }),
 
     getToday: protectedProcedure.query(async ({ ctx }) => {

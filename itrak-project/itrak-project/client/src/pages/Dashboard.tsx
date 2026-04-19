@@ -2,7 +2,8 @@ import { useState } from "react";
 import { useAuth } from "@/_core/hooks/useAuth";
 import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
-import { Settings, Plus, Camera } from "lucide-react";
+import { Settings, Plus, Camera, Zap } from "lucide-react";
+import WorkoutGenerator from "@/components/WorkoutGenerator";
 
 // ── helpers ────────────────────────────────────────────────────────────────────
 
@@ -94,6 +95,7 @@ export default function Dashboard() {
   const [trainingMode, setTrainingMode] = useState<string>("Muscle");
   const [activeEnv, setActiveEnv] = useState<string>("Gym");
   const [activeMuscle, setActiveMuscle] = useState<string>("All");
+  const [showGenerator, setShowGenerator] = useState(false);
 
   const workoutQuery = trpc.workouts.getToday.useQuery();
   const photoQuery = trpc.photoTracker.getToday.useQuery();
@@ -119,7 +121,7 @@ export default function Dashboard() {
     .split(" ").map((p: string) => p[0]).join("").slice(0, 2).toUpperCase();
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] pb-8">
+    <div className="min-h-screen bg-[#0a0a0f] pb-32">
 
       {/* ── Header ───────────────────────────────────────────────────────────── */}
       <header className="flex items-center justify-between px-5 pt-12 pb-4">
@@ -351,6 +353,31 @@ export default function Dashboard() {
           </div>
         )}
       </div>
+
+      {/* ── START WORKOUT button (fixed) ─────────────────────────────────────── */}
+      <div className="fixed bottom-0 left-0 right-0 px-5 pb-8 pt-4 bg-gradient-to-t from-[#0a0a0f] to-transparent pointer-events-none z-10">
+        <button
+          onClick={() => setShowGenerator(true)}
+          className="w-full py-4 rounded-2xl bg-red-600 text-white font-bold text-base tracking-widest uppercase flex items-center justify-center gap-2 hover:bg-red-700 active:bg-red-800 transition-colors shadow-lg shadow-red-600/30 pointer-events-auto"
+        >
+          <Zap className="w-5 h-5" />
+          Start Workout
+        </button>
+      </div>
+
+      {/* ── Workout Generator overlay ────────────────────────────────────────── */}
+      {showGenerator && (
+        <WorkoutGenerator
+          environment={activeEnv.toLowerCase() as "gym" | "home" | "hotel" | "outside"}
+          muscleGroup={activeMuscle}
+          trainingMode={trainingMode}
+          onClose={() => setShowGenerator(false)}
+          onLogged={() => {
+            setShowGenerator(false);
+            workoutQuery.refetch();
+          }}
+        />
+      )}
 
     </div>
   );
