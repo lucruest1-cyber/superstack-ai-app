@@ -10,12 +10,14 @@ import WorkoutLogger from "./pages/WorkoutLogger";
 import ExerciseLibrary from "./pages/ExerciseLibrary";
 import PhotoTracker from "./pages/PhotoTracker";
 import Settings from "./pages/Settings";
+import ExerciseSelector from "./pages/ExerciseSelector";
 
 function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
       <Route path={"/dashboard"} component={Dashboard} />
+      <Route path={"/log"} component={ExerciseSelector} />
       <Route path={"/workout"} component={WorkoutLogger} />
       <Route path={"/exercises"} component={ExerciseLibrary} />
       <Route path={"/photos"} component={PhotoTracker} />

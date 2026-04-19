@@ -57,12 +57,15 @@ export interface DailyCalorieSummaryRecord {
 export interface ExerciseRecord {
   id?: string;
   name: string;
+  category?: string | null;
   description?: string | null;
   environments: string[];
   muscleGroups?: string[] | null;
   difficulty: "beginner" | "intermediate" | "advanced";
   videoUrl?: string | null;
   thumbnailUrl?: string | null;
+  formTips?: string | null;
+  commonMistakes?: string | null;
 }
 
 // ============= HELPERS =============
