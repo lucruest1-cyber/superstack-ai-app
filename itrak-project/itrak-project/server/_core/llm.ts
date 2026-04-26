@@ -1,4 +1,4 @@
-import { GoogleGenerativeAI, type Part } from "@google/generative-ai";
+import Anthropic from "@anthropic-ai/sdk";
 import axios from "axios";
 
 export class RateLimitError extends Error {
@@ -8,17 +8,7 @@ export class RateLimitError extends Error {
   }
 }
 
-function extractRetrySeconds(msg: string): number {
-  // Primary: parse retryDelay field from Gemini JSON error body
-  const primary = msg.match(/"retryDelay":"(\d+\.?\d*)s"/);
-  if (primary) return Math.ceil(parseFloat(primary[1]));
-  // Fallback: any bare Ns pattern in the message
-  const fallback = msg.match(/(\d+\.?\d*)s/);
-  if (fallback) return Math.ceil(parseFloat(fallback[1]));
-  return 60;
-}
-
-const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? "");
+const anthropic = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY ?? "" });
 
 interface Message {
   role: "system" | "user" | "assistant";
@@ -43,54 +33,53 @@ interface LLMResponse {
 }
 
 export async function invokeLLM(request: LLMRequest): Promise<LLMResponse> {
-  // Separate system prompt from user messages
   const systemMsg = request.messages.find((m) => m.role === "system");
   const userMsgs  = request.messages.filter((m) => m.role !== "system");
 
-  const systemInstruction =
+  const systemPrompt =
     typeof systemMsg?.content === "string" ? systemMsg.content : undefined;
 
-  const parts: Part[] = [];
+  const contentBlocks: Anthropic.MessageParam["content"] = [];
 
   for (const msg of userMsgs) {
     if (typeof msg.content === "string") {
-      parts.push({ text: msg.content });
+      contentBlocks.push({ type: "text", text: msg.content });
     } else {
       for (const part of msg.content) {
         if (part.type === "text") {
-          parts.push({ text: part.text });
+          contentBlocks.push({ type: "text", text: part.text });
         } else if (part.type === "image_url") {
-          // Fetch image bytes from the public Firebase Storage URL
-          const response = await axios.get(part.image_url.url, {
-            responseType: "arraybuffer",
+          // Fetch image bytes from the Firebase Storage public URL
+          const res = await axios.get(part.image_url.url, { responseType: "arraybuffer" });
+          const mimeType = ((res.headers["content-type"] as string) || "image/jpeg")
+            .split(";")[0]
+            .trim() as "image/jpeg" | "image/png" | "image/gif" | "image/webp";
+          const data = Buffer.from(res.data as ArrayBuffer).toString("base64");
+          contentBlocks.push({
+            type: "image",
+            source: { type: "base64", media_type: mimeType, data },
           });
-          const mimeType =
-            (response.headers["content-type"] as string) || "image/jpeg";
-          const data = Buffer.from(response.data as ArrayBuffer).toString("base64");
-          parts.push({ inlineData: { mimeType, data } });
         }
       }
     }
   }
 
-  const model = genAI.getGenerativeModel({
-    model: "gemini-2.0-flash",
-    ...(systemInstruction ? { systemInstruction } : {}),
-  });
-
   try {
-    const result = await model.generateContent({
-      contents: [{ role: "user", parts }],
-      generationConfig: {
-        responseMimeType: "application/json",
-      },
+    const response = await anthropic.messages.create({
+      model: "claude-3-5-sonnet-20241022",
+      max_tokens: 1024,
+      ...(systemPrompt ? { system: systemPrompt } : {}),
+      messages: [{ role: "user", content: contentBlocks }],
     });
-    const text = result.response.text();
+
+    const text =
+      response.content[0]?.type === "text" ? response.content[0].text : "";
     return { choices: [{ message: { content: text } }] };
   } catch (err: any) {
-    const msg: string = err?.message ?? "";
-    if (msg.includes("429") || msg.includes("RESOURCE_EXHAUSTED") || msg.includes("quota")) {
-      throw new RateLimitError(extractRetrySeconds(msg));
+    if (err instanceof Anthropic.RateLimitError || err?.status === 429) {
+      const header = err?.headers?.["retry-after"];
+      const secs = header ? Math.ceil(parseFloat(header)) : 60;
+      throw new RateLimitError(isNaN(secs) ? 60 : secs);
     }
     throw err;
   }
