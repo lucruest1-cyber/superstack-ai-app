@@ -233,39 +233,29 @@ export async function getPhotoCaloricLogsByUser(userId: string, limit: number = 
 }
 
 export async function getPhotoCaloricLogsByDate(userId: string, date: string): Promise<PhotoCaloricLogRecord[]> {
-  const startOfDay = new Date(`${date}T00:00:00Z`);
-  const endOfDay = new Date(`${date}T23:59:59Z`);
-  const now = new Date();
-
   const snapshot = await db().collection("photoCaloricLogs")
     .where("userId", "==", userId)
-    .where("loggedAt", ">=", startOfDay)
-    .where("loggedAt", "<=", endOfDay)
-    .where("expiresAt", ">", now)
-    .orderBy("loggedAt", "desc")
     .get();
 
-  return snapshot.docs.map((doc: QueryDocumentSnapshot<DocumentData>) => ({
-    id: doc.id,
-    ...doc.data(),
-    loggedAt: toDate(doc.data().loggedAt),
-    expiresAt: toDate(doc.data().expiresAt),
-  } as PhotoCaloricLogRecord));
+  const now = new Date();
+  return snapshot.docs
+    .map((doc: QueryDocumentSnapshot<DocumentData>) => ({
+      id: doc.id,
+      ...doc.data(),
+      loggedAt: toDate(doc.data().loggedAt),
+      expiresAt: toDate(doc.data().expiresAt),
+    } as PhotoCaloricLogRecord))
+    .filter((log) => {
+      const d = log.loggedAt.toISOString().split("T")[0];
+      return d === date && log.expiresAt > now;
+    })
+    .sort((a, b) => b.loggedAt.getTime() - a.loggedAt.getTime());
 }
 
 export async function countPhotosLoggedToday(userId: string): Promise<number> {
-  const today = new Date();
-  today.setHours(0, 0, 0, 0);
-  const tomorrow = new Date(today);
-  tomorrow.setDate(tomorrow.getDate() + 1);
-
-  const snapshot = await db().collection("photoCaloricLogs")
-    .where("userId", "==", userId)
-    .where("loggedAt", ">=", today)
-    .where("loggedAt", "<", tomorrow)
-    .get();
-
-  return snapshot.size;
+  const today = new Date().toISOString().split("T")[0];
+  const logs = await getPhotoCaloricLogsByDate(userId, today);
+  return logs.length;
 }
 
 // ============= DAILY SUMMARY FUNCTIONS =============
@@ -273,12 +263,10 @@ export async function countPhotosLoggedToday(userId: string): Promise<number> {
 export async function getDailyCalorieSummary(userId: string, date: string): Promise<DailyCalorieSummaryRecord | null> {
   const snapshot = await db().collection("dailyCalorieSummary")
     .where("userId", "==", userId)
-    .where("date", "==", date)
-    .limit(1)
     .get();
 
-  if (snapshot.empty) return null;
-  const doc = snapshot.docs[0];
+  const doc = snapshot.docs.find((d) => d.data().date === date);
+  if (!doc) return null;
   return { id: doc.id, ...doc.data() } as DailyCalorieSummaryRecord;
 }
 
