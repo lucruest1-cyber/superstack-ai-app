@@ -1,8 +1,19 @@
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 import { Camera, Loader2 } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
+
+function parseRetryAfter(msg: string): number {
+  const m = msg.match(/Retry after (\d+)s/);
+  return m ? parseInt(m[1], 10) : 0;
+}
+
+function fmtCountdown(secs: number): string {
+  const m = Math.floor(secs / 60).toString().padStart(2, "0");
+  const s = (secs % 60).toString().padStart(2, "0");
+  return `${m}:${s}`;
+}
 
 function foodEmoji(desc: string): string {
   const d = desc.toLowerCase();
@@ -27,6 +38,18 @@ export default function Meals() {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [preview, setPreview] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [retryAfterSecs, setRetryAfterSecs] = useState<number | null>(null);
+
+  useEffect(() => {
+    if (retryAfterSecs === null || retryAfterSecs <= 0) return;
+    const id = setInterval(() => {
+      setRetryAfterSecs((s) => {
+        if (s === null || s <= 1) { clearInterval(id); return null; }
+        return s - 1;
+      });
+    }, 1000);
+    return () => clearInterval(id);
+  }, [retryAfterSecs]);
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -65,7 +88,12 @@ export default function Meals() {
       todayQuery.refetch();
       summaryQuery.refetch();
     } catch (err: any) {
-      toast.error(err.message || "Failed to analyze photo");
+      const secs = parseRetryAfter(err?.message ?? "");
+      if (err?.data?.code === "TOO_MANY_REQUESTS" || secs > 0) {
+        setRetryAfterSecs(secs || 60);
+      } else {
+        toast.error(err.message || "Failed to analyze photo");
+      }
     } finally {
       setIsAnalyzing(false);
     }
@@ -148,7 +176,7 @@ export default function Meals() {
               <button
                 className="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-sm tracking-wide uppercase transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
                 onClick={handleUpload}
-                disabled={isAnalyzing || uploadMutation.isPending}
+                disabled={isAnalyzing || uploadMutation.isPending || retryAfterSecs !== null}
               >
                 {isAnalyzing || uploadMutation.isPending ? (
                   <>
@@ -226,6 +254,21 @@ export default function Meals() {
         )}
 
       </div>
+
+      {retryAfterSecs !== null && (
+        <div className="fixed bottom-16 left-0 right-0 z-40 px-5 pb-4">
+          <div className="rounded-2xl bg-[#13131a] border border-blue-500/40 p-4 flex items-center gap-4 shadow-xl shadow-blue-900/20">
+            <Loader2 className="w-5 h-5 text-blue-400 animate-spin shrink-0" />
+            <div className="flex-1 min-w-0">
+              <p className="text-white text-sm font-semibold">AI is analyzing your meal…</p>
+              <p className="text-gray-400 text-xs mt-0.5">Please wait before trying again</p>
+            </div>
+            <span className="text-blue-400 font-mono font-bold text-lg tabular-nums">
+              {fmtCountdown(retryAfterSecs)}
+            </span>
+          </div>
+        </div>
+      )}
 
       <BottomNav />
     </div>

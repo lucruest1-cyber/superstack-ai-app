@@ -1,6 +1,23 @@
 import { GoogleGenerativeAI, type Part } from "@google/generative-ai";
 import axios from "axios";
 
+export class RateLimitError extends Error {
+  constructor(public retryAfterSeconds: number) {
+    super(`Rate limited. Retry after ${retryAfterSeconds}s`);
+    this.name = "RateLimitError";
+  }
+}
+
+function extractRetrySeconds(msg: string): number {
+  // Primary: parse retryDelay field from Gemini JSON error body
+  const primary = msg.match(/"retryDelay":"(\d+\.?\d*)s"/);
+  if (primary) return Math.ceil(parseFloat(primary[1]));
+  // Fallback: any bare Ns pattern in the message
+  const fallback = msg.match(/(\d+\.?\d*)s/);
+  if (fallback) return Math.ceil(parseFloat(fallback[1]));
+  return 60;
+}
+
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY ?? "");
 
 interface Message {
@@ -61,13 +78,20 @@ export async function invokeLLM(request: LLMRequest): Promise<LLMResponse> {
     ...(systemInstruction ? { systemInstruction } : {}),
   });
 
-  const result = await model.generateContent({
-    contents: [{ role: "user", parts }],
-    generationConfig: {
-      responseMimeType: "application/json",
-    },
-  });
-
-  const text = result.response.text();
-  return { choices: [{ message: { content: text } }] };
+  try {
+    const result = await model.generateContent({
+      contents: [{ role: "user", parts }],
+      generationConfig: {
+        responseMimeType: "application/json",
+      },
+    });
+    const text = result.response.text();
+    return { choices: [{ message: { content: text } }] };
+  } catch (err: any) {
+    const msg: string = err?.message ?? "";
+    if (msg.includes("429") || msg.includes("RESOURCE_EXHAUSTED") || msg.includes("quota")) {
+      throw new RateLimitError(extractRetrySeconds(msg));
+    }
+    throw err;
+  }
 }

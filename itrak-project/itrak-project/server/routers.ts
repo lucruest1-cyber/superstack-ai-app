@@ -1,11 +1,12 @@
 import { z } from "zod";
+import { TRPCError } from "@trpc/server";
 import { type Response } from "express";
 import { publicProcedure, router, protectedProcedure } from "./_core/trpc";
 import * as db from "./db";
 import { systemRouter } from "./_core/systemRouter";
 import { COOKIE_NAME } from "../shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
-import { invokeLLM } from "./_core/llm";
+import { invokeLLM, RateLimitError } from "./_core/llm";
 import { storagePut } from "./storage";
 import { nanoid } from "nanoid";
 
@@ -150,51 +151,62 @@ export const appRouter = router({
         const { url: photoUrl } = await storagePut(fileKey, imageBuffer, input.mimeType);
 
         // Analyze with Gemini
-        const analysisResponse = await invokeLLM({
-          messages: [
-            {
-              role: "system",
-              content:
-                "You are a nutrition expert. Analyze the food in the image and provide detailed nutritional information. Return ONLY valid JSON with the following structure: {foodDescription: string, calories: number, protein: number (grams), carbs: number (grams), fat: number (grams), confidence: 'high' | 'medium' | 'low'}",
-            },
-            {
-              role: "user",
-              content: [
-                {
-                  type: "text",
-                  text: "Analyze this food image and provide nutritional information.",
-                },
-                {
-                  type: "image_url",
-                  image_url: {
-                    url: photoUrl,
-                    detail: "high",
+        let analysisResponse;
+        try {
+          analysisResponse = await invokeLLM({
+            messages: [
+              {
+                role: "system",
+                content:
+                  "You are a nutrition expert. Analyze the food in the image and provide detailed nutritional information. Return ONLY valid JSON with the following structure: {foodDescription: string, calories: number, protein: number (grams), carbs: number (grams), fat: number (grams), confidence: 'high' | 'medium' | 'low'}",
+              },
+              {
+                role: "user",
+                content: [
+                  {
+                    type: "text",
+                    text: "Analyze this food image and provide nutritional information.",
                   },
+                  {
+                    type: "image_url",
+                    image_url: {
+                      url: photoUrl,
+                      detail: "high",
+                    },
+                  },
+                ],
+              },
+            ],
+            response_format: {
+              type: "json_schema",
+              json_schema: {
+                name: "nutrition_analysis",
+                strict: true,
+                schema: {
+                  type: "object",
+                  properties: {
+                    foodDescription: { type: "string" },
+                    calories: { type: "number" },
+                    protein: { type: "number" },
+                    carbs: { type: "number" },
+                    fat: { type: "number" },
+                    confidence: { type: "string", enum: ["high", "medium", "low"] },
+                  },
+                  required: ["foodDescription", "calories", "protein", "carbs", "fat", "confidence"],
+                  additionalProperties: false,
                 },
-              ],
-            },
-          ],
-          response_format: {
-            type: "json_schema",
-            json_schema: {
-              name: "nutrition_analysis",
-              strict: true,
-              schema: {
-                type: "object",
-                properties: {
-                  foodDescription: { type: "string" },
-                  calories: { type: "number" },
-                  protein: { type: "number" },
-                  carbs: { type: "number" },
-                  fat: { type: "number" },
-                  confidence: { type: "string", enum: ["high", "medium", "low"] },
-                },
-                required: ["foodDescription", "calories", "protein", "carbs", "fat", "confidence"],
-                additionalProperties: false,
               },
             },
-          },
-        });
+          });
+        } catch (err) {
+          if (err instanceof RateLimitError) {
+            throw new TRPCError({
+              code: "TOO_MANY_REQUESTS",
+              message: `Rate limited. Retry after ${err.retryAfterSeconds}s`,
+            });
+          }
+          throw err;
+        }
 
         const analysisText = analysisResponse.choices[0]?.message.content || "{}";
         const analysis = JSON.parse(analysisText);
