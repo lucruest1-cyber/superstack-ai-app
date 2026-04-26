@@ -57,7 +57,7 @@ export async function invokeLLM(request: LLMRequest): Promise<LLMResponse> {
   }
 
   const model = genAI.getGenerativeModel({
-    model: "gemini-1.5-flash",
+    model: "gemini-2.0-flash",
     ...(systemInstruction ? { systemInstruction } : {}),
   });
 
