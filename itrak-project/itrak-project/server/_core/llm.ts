@@ -64,13 +64,25 @@ export async function invokeLLM(request: LLMRequest): Promise<LLMResponse> {
     }
   }
 
-  if (!process.env.ANTHROPIC_API_KEY) {
+  const apiKey = process.env.ANTHROPIC_API_KEY ?? "";
+  if (!apiKey) {
     throw new Error("ANTHROPIC_API_KEY environment variable is not set");
   }
 
+  const MODEL = "claude-sonnet-4-6";
+  const loggableBlocks = contentBlocks.map((b) =>
+    b.type === "image"
+      ? { type: "image", media_type: (b.source as any).media_type, data_bytes: ((b.source as any).data as string).length }
+      : b
+  );
+
+  console.log("[llm] model:", MODEL);
+  console.log("[llm] api_key prefix:", apiKey.slice(0, 10));
+  console.log("[llm] request:", JSON.stringify({ system: systemPrompt, content_blocks: loggableBlocks }, null, 2));
+
   try {
     const response = await anthropic.messages.create({
-      model: "claude-sonnet-4-6",
+      model: MODEL,
       max_tokens: 1024,
       ...(systemPrompt ? { system: systemPrompt } : {}),
       messages: [{ role: "user", content: contentBlocks }],
@@ -78,14 +90,20 @@ export async function invokeLLM(request: LLMRequest): Promise<LLMResponse> {
 
     const text =
       response.content[0]?.type === "text" ? response.content[0].text : "";
+    console.log("[llm] success, response length:", text.length);
     return { choices: [{ message: { content: text } }] };
   } catch (err: any) {
+    console.error("[llm] error name:", err?.name);
+    console.error("[llm] error status:", err?.status);
+    console.error("[llm] error message:", err?.message);
+    console.error("[llm] error headers:", JSON.stringify(err?.headers ?? {}));
+    console.error("[llm] error body:", typeof err?.error === "object" ? JSON.stringify(err.error) : err?.error);
+
     if (err instanceof Anthropic.RateLimitError || err?.status === 429) {
       const header = err?.headers?.["retry-after"];
       const secs = header ? Math.ceil(parseFloat(header)) : 60;
       throw new RateLimitError(isNaN(secs) ? 60 : secs);
     }
-    // Surface Anthropic API errors with status code and message
     if (err instanceof Anthropic.APIError) {
       throw new Error(`Anthropic API error ${err.status}: ${err.message}`);
     }
