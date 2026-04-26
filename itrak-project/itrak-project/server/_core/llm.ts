@@ -88,8 +88,10 @@ export async function invokeLLM(request: LLMRequest): Promise<LLMResponse> {
       messages: [{ role: "user", content: contentBlocks }],
     });
 
-    const text =
+    let text =
       response.content[0]?.type === "text" ? response.content[0].text : "";
+    // Strip markdown code fences Claude sometimes wraps JSON in
+    text = text.replace(/^```(?:json)?\s*/i, "").replace(/\s*```$/, "").trim();
     console.log("[llm] success, response length:", text.length);
     return { choices: [{ message: { content: text } }] };
   } catch (err: any) {
