@@ -64,6 +64,10 @@ export async function invokeLLM(request: LLMRequest): Promise<LLMResponse> {
     }
   }
 
+  if (!process.env.ANTHROPIC_API_KEY) {
+    throw new Error("ANTHROPIC_API_KEY environment variable is not set");
+  }
+
   try {
     const response = await anthropic.messages.create({
       model: "claude-sonnet-4-6",
@@ -80,6 +84,10 @@ export async function invokeLLM(request: LLMRequest): Promise<LLMResponse> {
       const header = err?.headers?.["retry-after"];
       const secs = header ? Math.ceil(parseFloat(header)) : 60;
       throw new RateLimitError(isNaN(secs) ? 60 : secs);
+    }
+    // Surface Anthropic API errors with status code and message
+    if (err instanceof Anthropic.APIError) {
+      throw new Error(`Anthropic API error ${err.status}: ${err.message}`);
     }
     throw err;
   }
