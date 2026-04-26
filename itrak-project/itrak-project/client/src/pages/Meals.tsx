@@ -88,11 +88,16 @@ export default function Meals() {
       todayQuery.refetch();
       summaryQuery.refetch();
     } catch (err: any) {
-      const secs = parseRetryAfter(err?.message ?? "");
-      if (err?.data?.code === "TOO_MANY_REQUESTS" || secs > 0) {
-        setRetryAfterSecs(secs || 60);
+      const msg: string = err?.message ?? "";
+      if (msg.toLowerCase().includes("daily photo limit")) {
+        toast.error("You've reached your daily photo limit. Try again tomorrow.");
       } else {
-        toast.error(err.message || "Failed to analyze photo");
+        const secs = parseRetryAfter(msg);
+        if (err?.data?.code === "TOO_MANY_REQUESTS" || secs > 0) {
+          setRetryAfterSecs(secs || 60);
+        } else {
+          toast.error(msg || "Failed to analyze photo");
+        }
       }
     } finally {
       setIsAnalyzing(false);
