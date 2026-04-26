@@ -11,6 +11,7 @@ import ExerciseLibrary from "./pages/ExerciseLibrary";
 import PhotoTracker from "./pages/PhotoTracker";
 import Settings from "./pages/Settings";
 import ExerciseSelector from "./pages/ExerciseSelector";
+import Meals from "./pages/Meals";
 
 function Router() {
   return (
@@ -20,6 +21,7 @@ function Router() {
       <Route path={"/log"} component={ExerciseSelector} />
       <Route path={"/workout"} component={WorkoutLogger} />
       <Route path={"/exercises"} component={ExerciseLibrary} />
+      <Route path={"/meals"} component={Meals} />
       <Route path={"/photos"} component={PhotoTracker} />
       <Route path={"/settings"} component={Settings} />
       <Route path={"/404"} component={NotFound} />

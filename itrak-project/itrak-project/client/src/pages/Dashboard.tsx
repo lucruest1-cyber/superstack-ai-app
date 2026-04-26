@@ -4,6 +4,7 @@ import { trpc } from "@/lib/trpc";
 import { useLocation } from "wouter";
 import { Settings, Plus, Camera, Zap } from "lucide-react";
 import WorkoutGenerator from "@/components/WorkoutGenerator";
+import BottomNav from "@/components/BottomNav";
 
 // ── helpers ────────────────────────────────────────────────────────────────────
 
@@ -121,7 +122,7 @@ export default function Dashboard() {
     .split(" ").map((p: string) => p[0]).join("").slice(0, 2).toUpperCase();
 
   return (
-    <div className="min-h-screen bg-[#0a0a0f] pb-32">
+    <div className="min-h-screen bg-[#0a0a0f] pb-52">
 
       {/* ── Header ───────────────────────────────────────────────────────────── */}
       <header className="flex items-center justify-between px-5 pt-12 pb-4">
@@ -312,7 +313,7 @@ export default function Dashboard() {
             </span>
           </div>
           <button
-            onClick={() => setLocation("/photos")}
+            onClick={() => setLocation("/meals")}
             className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-700 transition-colors"
           >
             <Camera className="w-4 h-4 text-white" />
@@ -324,7 +325,7 @@ export default function Dashboard() {
         ) : meals.length === 0 ? (
           <div
             className="rounded-xl border border-dashed border-white/10 py-8 flex flex-col items-center gap-2 cursor-pointer hover:border-blue-600/30 transition-colors"
-            onClick={() => setLocation("/photos")}
+            onClick={() => setLocation("/meals")}
           >
             <Camera className="w-6 h-6 text-gray-600" />
             <p className="text-gray-600 text-sm">Tap 📷 to log your first meal</p>
@@ -355,7 +356,7 @@ export default function Dashboard() {
       </div>
 
       {/* ── START WORKOUT button (fixed) ─────────────────────────────────────── */}
-      <div className="fixed bottom-0 left-0 right-0 px-5 pb-8 pt-4 bg-gradient-to-t from-[#0a0a0f] to-transparent pointer-events-none z-10">
+      <div className="fixed bottom-16 left-0 right-0 px-5 pb-4 pt-4 bg-gradient-to-t from-[#0a0a0f] to-transparent pointer-events-none z-10">
         <button
           onClick={() => setShowGenerator(true)}
           className="w-full py-4 rounded-2xl bg-red-600 text-white font-bold text-base tracking-widest uppercase flex items-center justify-center gap-2 hover:bg-red-700 active:bg-red-800 transition-colors shadow-lg shadow-red-600/30 pointer-events-auto"
@@ -378,6 +379,8 @@ export default function Dashboard() {
           }}
         />
       )}
+
+      <BottomNav />
 
     </div>
   );
