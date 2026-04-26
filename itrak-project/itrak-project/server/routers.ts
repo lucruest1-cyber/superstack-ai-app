@@ -142,7 +142,10 @@ export const appRouter = router({
         // Check daily limit (10 photos per day)
         const photoCount = await db.countPhotosLoggedToday(ctx.user.id);
         if (photoCount >= 10) {
-          throw new Error("Daily photo limit (10) reached");
+          throw new TRPCError({
+            code: "TOO_MANY_REQUESTS",
+            message: "You've reached your daily photo limit of 10. Please try again tomorrow.",
+          });
         }
 
         // Upload image to S3
