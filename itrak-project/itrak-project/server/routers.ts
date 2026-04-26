@@ -139,23 +139,31 @@ export const appRouter = router({
         })
       )
       .mutation(async ({ ctx, input }) => {
+        console.log("[upload] START userId:", ctx.user.id, "imageBase64 length:", input.imageBase64.length, "mimeType:", input.mimeType);
+
         // Check daily limit (10 photos per day)
         const photoCount = await db.countPhotosLoggedToday(ctx.user.id);
+        console.log("[upload] quota check — used:", photoCount, "/ 10");
         if (photoCount >= 10) {
+          console.log("[upload] quota exceeded, rejecting");
           throw new TRPCError({
             code: "TOO_MANY_REQUESTS",
             message: "You've reached your daily photo limit of 10. Please try again tomorrow.",
           });
         }
+        console.log("[upload] quota OK, proceeding");
 
         // Upload image to S3
         const imageBuffer = Buffer.from(input.imageBase64, "base64");
         const fileKey = `photos/${ctx.user.id}/${nanoid()}.jpg`;
+        console.log("[upload] uploading to storage, key:", fileKey, "bytes:", imageBuffer.length);
         const { url: photoUrl } = await storagePut(fileKey, imageBuffer, input.mimeType);
+        console.log("[upload] storage upload done, photoUrl:", photoUrl);
 
-        // Analyze with Gemini
+        // Analyze with Claude
         let analysisResponse;
         try {
+          console.log("[upload] calling invokeLLM");
           analysisResponse = await invokeLLM({
             messages: [
               {
@@ -201,7 +209,8 @@ export const appRouter = router({
               },
             },
           });
-        } catch (err) {
+        } catch (err: any) {
+          console.error("[upload] invokeLLM threw:", err?.name, err?.message);
           if (err instanceof RateLimitError) {
             throw new TRPCError({
               code: "TOO_MANY_REQUESTS",
@@ -212,7 +221,15 @@ export const appRouter = router({
         }
 
         const analysisText = analysisResponse.choices[0]?.message.content || "{}";
-        const analysis = JSON.parse(analysisText);
+        console.log("[upload] raw LLM response:", analysisText.slice(0, 300));
+        let analysis: any;
+        try {
+          analysis = JSON.parse(analysisText);
+        } catch (parseErr: any) {
+          console.error("[upload] JSON.parse failed:", parseErr.message, "— raw text:", analysisText.slice(0, 500));
+          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "AI returned invalid JSON: " + analysisText.slice(0, 100) });
+        }
+        console.log("[upload] parsed analysis:", JSON.stringify(analysis));
 
         // Save to database
         await db.createPhotoCaloricLog({

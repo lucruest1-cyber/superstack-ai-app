@@ -88,6 +88,8 @@ export default function Meals() {
       todayQuery.refetch();
       summaryQuery.refetch();
     } catch (err: any) {
+      console.error("[meals] upload error — code:", err?.data?.code, "httpStatus:", err?.data?.httpStatus, "message:", err?.message);
+      console.error("[meals] full error object:", JSON.stringify(err, null, 2));
       const msg: string = err?.message ?? "";
       if (msg.toLowerCase().includes("daily photo limit")) {
         toast.error("You've reached your daily photo limit. Try again tomorrow.");
