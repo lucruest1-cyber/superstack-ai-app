@@ -279,6 +279,22 @@ export const appRouter = router({
         return await db.getDailyCalorieSummary(ctx.user.id, input.date);
       }),
 
+    deleteLog: protectedProcedure
+      .input(z.object({ id: z.string() }))
+      .mutation(async ({ ctx, input }) => {
+        await db.deletePhotoCaloricLog(ctx.user.id, input.id);
+        const today = new Date().toISOString().split("T")[0];
+        const logs = await db.getPhotoCaloricLogsByDate(ctx.user.id, today);
+        const totals = {
+          calories: logs.reduce((s, l) => s + (l.calories || 0), 0),
+          protein:  logs.reduce((s, l) => s + (l.protein  || 0), 0),
+          carbs:    logs.reduce((s, l) => s + (l.carbs    || 0), 0),
+          fat:      logs.reduce((s, l) => s + (l.fat      || 0), 0),
+        };
+        await db.updateDailyCalorieSummary(ctx.user.id, today, totals);
+        return { success: true };
+      }),
+
     getRemainingPhotos: protectedProcedure.query(async ({ ctx }) => {
       const count = await db.countPhotosLoggedToday(ctx.user.id);
       return { remaining: Math.max(0, 10 - count), total: 10 };

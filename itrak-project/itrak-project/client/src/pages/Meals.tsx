@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Camera, Loader2, X } from "lucide-react";
+import { Camera, Loader2, Trash2, X } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 
 function parseRetryAfter(msg: string): number {
@@ -36,10 +36,8 @@ function foodEmoji(desc: string): string {
 
 export default function Meals() {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [preview, setPreview] = useState<string | null>(null);
-  const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [retryAfterSecs, setRetryAfterSecs] = useState<number | null>(null);
-  const [selectedMeal, setSelectedMeal] = useState<(typeof meals)[number] | null>(null);
+  const [selectedMeal, setSelectedMeal] = useState<ReturnType<typeof trpc.photoTracker.getToday.useQuery>["data"] extends (infer T)[] | undefined ? T : never | null>(null);
 
   useEffect(() => {
     if (retryAfterSecs === null || retryAfterSecs <= 0) return;
@@ -54,57 +52,74 @@ export default function Meals() {
 
   const today = new Date().toISOString().split("T")[0];
 
-  const summaryQuery = trpc.photoTracker.getDailySummary.useQuery({ date: today });
+  const summaryQuery  = trpc.photoTracker.getDailySummary.useQuery({ date: today });
   const remainingQuery = trpc.photoTracker.getRemainingPhotos.useQuery();
-  const todayQuery = trpc.photoTracker.getToday.useQuery();
+  const todayQuery    = trpc.photoTracker.getToday.useQuery();
   const uploadMutation = trpc.photoTracker.uploadAndAnalyze.useMutation();
+  const deleteMutation = trpc.photoTracker.deleteLog.useMutation();
 
   const summary = summaryQuery.data;
-  const meals = todayQuery.data ?? [];
+  const meals   = todayQuery.data ?? [];
+
+  const refetchAll = () => {
+    remainingQuery.refetch();
+    todayQuery.refetch();
+    summaryQuery.refetch();
+  };
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (fileInputRef.current) fileInputRef.current.value = "";
     if (file.size > 5 * 1024 * 1024) {
       toast.error("File size must be less than 5MB");
       return;
     }
     const reader = new FileReader();
-    reader.onload = (ev) => setPreview(ev.target?.result as string);
+    reader.onload = (ev) => {
+      const dataUrl = ev.target?.result as string;
+      uploadMutation.mutate(
+        {
+          imageBase64: dataUrl.split(",")[1],
+          mimeType: dataUrl.split(",")[0].split(":")[1].split(";")[0] || "image/jpeg",
+        },
+        {
+          onSuccess: () => {
+            toast.success("Meal logged!");
+            refetchAll();
+          },
+          onError: (err: any) => {
+            console.error("[meals] upload error:", err?.data?.code, err?.message);
+            const msg: string = err?.message ?? "";
+            if (msg.toLowerCase().includes("daily photo limit")) {
+              toast.error("You've reached your daily photo limit. Try again tomorrow.");
+            } else {
+              const secs = parseRetryAfter(msg);
+              if (err?.data?.code === "TOO_MANY_REQUESTS" || secs > 0) {
+                setRetryAfterSecs(secs || 60);
+              } else {
+                toast.error(msg || "Failed to analyze photo");
+              }
+            }
+          },
+        }
+      );
+    };
     reader.readAsDataURL(file);
   };
 
-  const handleUpload = async () => {
-    if (!preview) return;
-    setIsAnalyzing(true);
-    try {
-      await uploadMutation.mutateAsync({
-        imageBase64: preview.split(",")[1],
-        mimeType: preview.split(",")[0].split(":")[1].split(";")[0] || "image/jpeg",
-      });
-      toast.success("Meal logged!");
-      setPreview(null);
-      if (fileInputRef.current) fileInputRef.current.value = "";
-      remainingQuery.refetch();
-      todayQuery.refetch();
-      summaryQuery.refetch();
-    } catch (err: any) {
-      console.error("[meals] upload error — code:", err?.data?.code, "httpStatus:", err?.data?.httpStatus, "message:", err?.message);
-      console.error("[meals] full error object:", JSON.stringify(err, null, 2));
-      const msg: string = err?.message ?? "";
-      if (msg.toLowerCase().includes("daily photo limit")) {
-        toast.error("You've reached your daily photo limit. Try again tomorrow.");
-      } else {
-        const secs = parseRetryAfter(msg);
-        if (err?.data?.code === "TOO_MANY_REQUESTS" || secs > 0) {
-          setRetryAfterSecs(secs || 60);
-        } else {
-          toast.error(msg || "Failed to analyze photo");
-        }
+  const handleDelete = (id: string, closeSheet = false) => {
+    deleteMutation.mutate(
+      { id },
+      {
+        onSuccess: () => {
+          toast.success("Meal removed");
+          if (closeSheet) setSelectedMeal(null);
+          refetchAll();
+        },
+        onError: () => toast.error("Failed to delete meal"),
       }
-    } finally {
-      setIsAnalyzing(false);
-    }
+    );
   };
 
   return (
@@ -165,9 +180,7 @@ export default function Meals() {
         <div className="rounded-2xl bg-[#13131a] border border-white/5 p-5">
           <div className="flex items-center gap-2 mb-4">
             <div className="w-1 h-5 rounded-full bg-blue-500" />
-            <h2 className="text-sm font-bold uppercase tracking-widest text-white/80">
-              {preview ? "Review Photo" : "Log a Meal"}
-            </h2>
+            <h2 className="text-sm font-bold uppercase tracking-widest text-white/80">Log a Meal</h2>
           </div>
 
           <input
@@ -178,48 +191,27 @@ export default function Meals() {
             className="hidden"
           />
 
-          {preview ? (
-            <div className="space-y-3">
-              <img src={preview} alt="Preview" className="w-full rounded-xl border border-white/10 object-cover max-h-64" />
-              <button
-                className="w-full py-3.5 rounded-xl bg-blue-600 hover:bg-blue-700 active:bg-blue-800 text-white font-bold text-sm tracking-wide uppercase transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
-                onClick={handleUpload}
-                disabled={isAnalyzing || uploadMutation.isPending || retryAfterSecs !== null}
-              >
-                {isAnalyzing || uploadMutation.isPending ? (
-                  <>
-                    <Loader2 className="w-4 h-4 animate-spin" />
-                    Analyzing...
-                  </>
-                ) : (
-                  "Analyze & Log"
-                )}
-              </button>
-              <button
-                className="w-full py-3 rounded-xl border border-white/10 text-white/60 text-sm font-medium hover:border-white/30 hover:text-white transition-colors"
-                onClick={() => {
-                  setPreview(null);
-                  if (fileInputRef.current) fileInputRef.current.value = "";
-                }}
-                disabled={isAnalyzing}
-              >
-                Cancel
-              </button>
+          <button
+            className="w-full flex flex-col items-center justify-center gap-3 py-10 rounded-xl border-2 border-dashed border-white/15 hover:border-blue-500/50 hover:bg-blue-500/5 transition-all group disabled:opacity-50 disabled:pointer-events-none"
+            onClick={() => fileInputRef.current?.click()}
+            disabled={uploadMutation.isPending || retryAfterSecs !== null}
+          >
+            <div className="w-14 h-14 rounded-full bg-blue-500/10 flex items-center justify-center group-hover:bg-blue-500/20 transition-colors">
+              {uploadMutation.isPending
+                ? <Loader2 className="w-7 h-7 text-blue-400 animate-spin" />
+                : <Camera className="w-7 h-7 text-blue-400" />}
             </div>
-          ) : (
-            <button
-              className="w-full flex flex-col items-center justify-center gap-3 py-10 rounded-xl border-2 border-dashed border-white/15 hover:border-blue-500/50 hover:bg-blue-500/5 transition-all group"
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <div className="w-14 h-14 rounded-full bg-blue-500/10 flex items-center justify-center group-hover:bg-blue-500/20 transition-colors">
-                <Camera className="w-7 h-7 text-blue-400" />
-              </div>
-              <div className="text-center">
-                <p className="text-sm font-semibold text-white/80">Tap to take or upload a photo</p>
-                <p className="text-xs text-white/30 mt-1">Max 5MB · JPG, PNG, HEIC</p>
-              </div>
-            </button>
-          )}
+            <div className="text-center">
+              {uploadMutation.isPending ? (
+                <p className="text-sm font-semibold text-blue-400">Analyzing your meal…</p>
+              ) : (
+                <>
+                  <p className="text-sm font-semibold text-white/80">Tap to take or upload a photo</p>
+                  <p className="text-xs text-white/30 mt-1">Max 5MB · JPG, PNG, HEIC</p>
+                </>
+              )}
+            </div>
+          </button>
         </div>
 
         {/* Meal History */}
@@ -257,6 +249,13 @@ export default function Meals() {
                     P {meal.protein}g · C {meal.carbs}g · F {meal.fat}g
                   </p>
                 </div>
+                <button
+                  onClick={(e) => { e.stopPropagation(); handleDelete(meal.id!); }}
+                  disabled={deleteMutation.isPending}
+                  className="shrink-0 w-8 h-8 rounded-full bg-white/5 hover:bg-red-500/20 flex items-center justify-center transition-colors"
+                >
+                  <Trash2 className="w-3.5 h-3.5 text-gray-600" />
+                </button>
               </div>
             ))}
           </div>
@@ -270,18 +269,12 @@ export default function Meals() {
           className="fixed inset-0 z-50 flex items-end"
           onClick={() => setSelectedMeal(null)}
         >
-          {/* Backdrop */}
           <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
-
-          {/* Sheet */}
           <div
             className="relative w-full rounded-t-3xl bg-[#13131a] border-t border-white/10 p-5 pb-10 max-h-[85vh] overflow-y-auto"
             onClick={(e) => e.stopPropagation()}
           >
-            {/* Drag handle */}
             <div className="w-10 h-1 rounded-full bg-white/20 mx-auto mb-5" />
-
-            {/* Close button */}
             <button
               onClick={() => setSelectedMeal(null)}
               className="absolute top-5 right-5 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center"
@@ -289,7 +282,6 @@ export default function Meals() {
               <X className="w-4 h-4 text-white" />
             </button>
 
-            {/* Photo */}
             {selectedMeal.photoUrl && (
               <img
                 src={selectedMeal.photoUrl}
@@ -298,7 +290,6 @@ export default function Meals() {
               />
             )}
 
-            {/* Title */}
             <p className="text-white font-bold text-lg leading-snug mb-1">
               {selectedMeal.foodDescription ?? "Unknown meal"}
             </p>
@@ -306,13 +297,12 @@ export default function Meals() {
               {new Date(selectedMeal.loggedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
             </p>
 
-            {/* Macros */}
-            <div className="grid grid-cols-4 gap-3 mb-2">
+            <div className="grid grid-cols-4 gap-3 mb-5">
               {[
-                { label: "Calories", value: selectedMeal.calories ?? 0, unit: "", color: "text-white" },
-                { label: "Protein", value: selectedMeal.protein ?? 0, unit: "g", color: "text-blue-400" },
-                { label: "Carbs",   value: selectedMeal.carbs ?? 0,   unit: "g", color: "text-blue-400" },
-                { label: "Fat",     value: selectedMeal.fat ?? 0,     unit: "g", color: "text-blue-400" },
+                { label: "Calories", value: selectedMeal.calories ?? 0, unit: "",  color: "text-white"    },
+                { label: "Protein",  value: selectedMeal.protein  ?? 0, unit: "g", color: "text-blue-400" },
+                { label: "Carbs",    value: selectedMeal.carbs    ?? 0, unit: "g", color: "text-blue-400" },
+                { label: "Fat",      value: selectedMeal.fat      ?? 0, unit: "g", color: "text-blue-400" },
               ].map(({ label, value, unit, color }) => (
                 <div key={label} className="rounded-xl bg-white/5 p-3 flex flex-col items-center gap-1">
                   <span className={`text-xl font-bold ${color}`}>{value}{unit}</span>
@@ -320,10 +310,20 @@ export default function Meals() {
                 </div>
               ))}
             </div>
+
+            <button
+              onClick={() => handleDelete(selectedMeal.id!, true)}
+              disabled={deleteMutation.isPending}
+              className="w-full py-3 rounded-xl border border-red-500/30 text-red-400 text-sm font-semibold flex items-center justify-center gap-2 hover:bg-red-500/10 transition-colors disabled:opacity-50"
+            >
+              <Trash2 className="w-4 h-4" />
+              {deleteMutation.isPending ? "Removing…" : "Delete Meal"}
+            </button>
           </div>
         </div>
       )}
 
+      {/* Rate limit countdown overlay */}
       {retryAfterSecs !== null && (
         <div className="fixed bottom-16 left-0 right-0 z-40 px-5 pb-4">
           <div className="rounded-2xl bg-[#13131a] border border-blue-500/40 p-4 flex items-center gap-4 shadow-xl shadow-blue-900/20">

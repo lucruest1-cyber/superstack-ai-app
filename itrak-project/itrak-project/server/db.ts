@@ -260,6 +260,14 @@ export async function countPhotosLoggedToday(userId: string): Promise<number> {
 
 // ============= DAILY SUMMARY FUNCTIONS =============
 
+export async function deletePhotoCaloricLog(userId: string, logId: string): Promise<void> {
+  const doc = await db().collection("photoCaloricLogs").doc(logId).get();
+  if (!doc.exists || doc.data()?.userId !== userId) {
+    throw new Error("Log not found or unauthorized");
+  }
+  await db().collection("photoCaloricLogs").doc(logId).delete();
+}
+
 export async function getDailyCalorieSummary(userId: string, date: string): Promise<DailyCalorieSummaryRecord | null> {
   const snapshot = await db().collection("dailyCalorieSummary")
     .where("userId", "==", userId)
