@@ -79,7 +79,7 @@ export default function Meals() {
     try {
       await uploadMutation.mutateAsync({
         imageBase64: preview.split(",")[1],
-        mimeType: "image/jpeg",
+        mimeType: preview.split(",")[0].split(":")[1].split(";")[0] || "image/jpeg",
       });
       toast.success("Meal logged!");
       setPreview(null);

@@ -155,7 +155,8 @@ export const appRouter = router({
 
         // Upload image to S3
         const imageBuffer = Buffer.from(input.imageBase64, "base64");
-        const fileKey = `photos/${ctx.user.id}/${nanoid()}.jpg`;
+        const ext = input.mimeType === "image/png" ? "png" : input.mimeType === "image/gif" ? "gif" : input.mimeType === "image/webp" ? "webp" : "jpg";
+        const fileKey = `photos/${ctx.user.id}/${nanoid()}.${ext}`;
         console.log("[upload] uploading to storage, key:", fileKey, "bytes:", imageBuffer.length);
         const { url: photoUrl } = await storagePut(fileKey, imageBuffer, input.mimeType);
         console.log("[upload] storage upload done, photoUrl:", photoUrl);
