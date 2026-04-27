@@ -1,7 +1,7 @@
 import { useRef, useState, useEffect } from "react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
-import { Camera, Loader2 } from "lucide-react";
+import { Camera, Loader2, X } from "lucide-react";
 import BottomNav from "@/components/BottomNav";
 
 function parseRetryAfter(msg: string): number {
@@ -39,6 +39,7 @@ export default function Meals() {
   const [preview, setPreview] = useState<string | null>(null);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [retryAfterSecs, setRetryAfterSecs] = useState<number | null>(null);
+  const [selectedMeal, setSelectedMeal] = useState<(typeof meals)[number] | null>(null);
 
   useEffect(() => {
     if (retryAfterSecs === null || retryAfterSecs <= 0) return;
@@ -241,7 +242,8 @@ export default function Meals() {
             {meals.map((meal) => (
               <div
                 key={meal.id}
-                className="flex items-center gap-3 rounded-xl bg-[#13131a] border border-white/5 border-l-[3px] border-l-blue-500 px-4 py-3"
+                onClick={() => setSelectedMeal(meal)}
+                className="flex items-center gap-3 rounded-xl bg-[#13131a] border border-white/5 border-l-[3px] border-l-blue-500 px-4 py-3 cursor-pointer active:opacity-70 transition-opacity"
               >
                 <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-xl shrink-0">
                   {foodEmoji(meal.foodDescription ?? "")}
@@ -261,6 +263,66 @@ export default function Meals() {
         )}
 
       </div>
+
+      {/* Meal Detail Bottom Sheet */}
+      {selectedMeal && (
+        <div
+          className="fixed inset-0 z-50 flex items-end"
+          onClick={() => setSelectedMeal(null)}
+        >
+          {/* Backdrop */}
+          <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" />
+
+          {/* Sheet */}
+          <div
+            className="relative w-full rounded-t-3xl bg-[#13131a] border-t border-white/10 p-5 pb-10 max-h-[85vh] overflow-y-auto"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Drag handle */}
+            <div className="w-10 h-1 rounded-full bg-white/20 mx-auto mb-5" />
+
+            {/* Close button */}
+            <button
+              onClick={() => setSelectedMeal(null)}
+              className="absolute top-5 right-5 w-8 h-8 rounded-full bg-white/10 flex items-center justify-center"
+            >
+              <X className="w-4 h-4 text-white" />
+            </button>
+
+            {/* Photo */}
+            {selectedMeal.photoUrl && (
+              <img
+                src={selectedMeal.photoUrl}
+                alt={selectedMeal.foodDescription ?? "Meal photo"}
+                className="w-full rounded-2xl object-cover max-h-52 mb-5 border border-white/10"
+              />
+            )}
+
+            {/* Title */}
+            <p className="text-white font-bold text-lg leading-snug mb-1">
+              {selectedMeal.foodDescription ?? "Unknown meal"}
+            </p>
+            <p className="text-gray-500 text-xs mb-5">
+              {new Date(selectedMeal.loggedAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" })}
+            </p>
+
+            {/* Macros */}
+            <div className="grid grid-cols-4 gap-3 mb-2">
+              {[
+                { label: "Calories", value: selectedMeal.calories ?? 0, unit: "", color: "text-white" },
+                { label: "Protein", value: selectedMeal.protein ?? 0, unit: "g", color: "text-blue-400" },
+                { label: "Carbs",   value: selectedMeal.carbs ?? 0,   unit: "g", color: "text-blue-400" },
+                { label: "Fat",     value: selectedMeal.fat ?? 0,     unit: "g", color: "text-blue-400" },
+              ].map(({ label, value, unit, color }) => (
+                <div key={label} className="rounded-xl bg-white/5 p-3 flex flex-col items-center gap-1">
+                  <span className={`text-xl font-bold ${color}`}>{value}{unit}</span>
+                  <span className="text-gray-500 text-[10px] uppercase tracking-wide">{label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
 
       {retryAfterSecs !== null && (
         <div className="fixed bottom-16 left-0 right-0 z-40 px-5 pb-4">
