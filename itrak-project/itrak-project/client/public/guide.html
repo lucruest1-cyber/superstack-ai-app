@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Add I-TRAK to Your Home Screen</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: #0a0a0f;
+      color: #fff;
+      min-height: 100vh;
+      padding: 0 0 48px;
+    }
+
+    /* ── Header ── */
+    header {
+      background: #0a0a0f;
+      border-bottom: 1px solid rgba(255,255,255,0.08);
+      padding: 32px 24px 24px;
+      text-align: center;
+    }
+    header .logo {
+      font-size: 36px;
+      font-weight: 900;
+      letter-spacing: -1px;
+      color: #fff;
+    }
+    header .sub {
+      margin-top: 6px;
+      font-size: 14px;
+      color: #3b82f6;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+    }
+
+    /* ── Main ── */
+    main {
+      max-width: 480px;
+      margin: 0 auto;
+      padding: 24px 16px 0;
+    }
+
+    .intro {
+      text-align: center;
+      color: #9ca3af;
+      font-size: 14px;
+      line-height: 1.6;
+      margin-bottom: 28px;
+    }
+
+    /* ── Steps ── */
+    .steps { display: flex; flex-direction: column; gap: 12px; }
+
+    .step {
+      background: #13131a;
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 16px;
+      padding: 18px 18px 18px 70px;
+      position: relative;
+    }
+    .step-num {
+      position: absolute;
+      left: 18px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #3b82f6;
+      color: #fff;
+      font-weight: 800;
+      font-size: 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .step-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+    .step-body {
+      font-size: 13px;
+      color: #9ca3af;
+      line-height: 1.55;
+    }
+    .step-body a {
+      color: #3b82f6;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    /* ── Tip ── */
+    .tip {
+      margin-top: 20px;
+      background: #13131a;
+      border: 1px solid rgba(59,130,246,0.25);
+      border-radius: 16px;
+      padding: 18px;
+    }
+    .tip-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #3b82f6;
+      margin-bottom: 6px;
+    }
+    .tip-body {
+      font-size: 13px;
+      color: #9ca3af;
+      line-height: 1.55;
+    }
+
+    /* ── PDF button ── */
+    .actions {
+      margin-top: 28px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 14px;
+      border-radius: 14px;
+      font-size: 14px;
+      font-weight: 700;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+    }
+    .btn-primary {
+      background: #3b82f6;
+      color: #fff;
+    }
+    .btn-outline {
+      background: transparent;
+      color: #fff;
+      border: 1.5px solid rgba(255,255,255,0.12);
+    }
+
+    /* ── Footer ── */
+    footer {
+      text-align: center;
+      margin-top: 36px;
+      font-size: 12px;
+      color: #374151;
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="logo">I-TRAK</div>
+    <div class="sub">Add to Home Screen Guide</div>
+  </header>
+
+  <main>
+    <p class="intro">
+      Install I-TRAK on your iPhone in under a minute.<br>
+      No App Store required — just follow these 5 steps.
+    </p>
+
+    <div class="steps">
+
+      <div class="step">
+        <div class="step-num">1</div>
+        <div class="step-title">🧭 Open Safari</div>
+        <div class="step-body">
+          On your iPhone, open <strong>Safari</strong> and go to:<br>
+          <a href="https://superstack-ai-app.vercel.app/" target="_blank">superstack-ai-app.vercel.app</a>
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">2</div>
+        <div class="step-title">⬆️ Tap the Share Button</div>
+        <div class="step-body">
+          Tap the <strong>Share icon</strong> at the bottom of the Safari screen —
+          it looks like a box with an arrow pointing up.
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">3</div>
+        <div class="step-title">➕ Tap "Add to Home Screen"</div>
+        <div class="step-body">
+          Scroll down in the Share menu and tap
+          <strong>"Add to Home Screen"</strong>.
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">4</div>
+        <div class="step-title">✅ Confirm the App Name</div>
+        <div class="step-body">
+          The name will show as <strong>"I-TRAK"</strong>.
+          Tap <strong>"Add"</strong> in the top-right corner.
+        </div>
+      </div>
+
+      <div class="step">
+        <div class="step-num">5</div>
+        <div class="step-title">🚀 Launch I-TRAK</div>
+        <div class="step-body">
+          Tap the <strong>I-TRAK icon</strong> on your home screen.
+          It opens in full-screen mode, just like a native app.
+        </div>
+      </div>
+
+    </div>
+
+    <div class="tip">
+      <div class="tip-title">💡 Tip</div>
+      <div class="tip-body">
+        I-TRAK works offline once installed and syncs your workouts and meals
+        automatically when you reconnect. Sign in with Google to keep your
+        data in sync across all your devices.
+      </div>
+    </div>
+
+    <div class="actions">
+      <a class="btn btn-primary" href="/itrak-add-to-home-screen-guide.pdf" download>
+        ⬇️ Download PDF Guide
+      </a>
+      <a class="btn btn-outline" href="https://superstack-ai-app.vercel.app/">
+        Open I-TRAK →
+      </a>
+    </div>
+
+    <footer>
+      I-TRAK Fitness Tracker &nbsp;·&nbsp; superstack-ai-app.vercel.app
+    </footer>
+
+  </main>
+
+</body>
+</html>
