@@ -7,16 +7,32 @@ import { toast } from "sonner";
 
 const Paywall = () => {
   const [, navigate] = useLocation();
-  const checkoutMutation = trpc.stripe.createCheckoutSession.useMutation();
+  const createCheckout = trpc.stripe.createCheckoutSession.useMutation();
 
-  const handleCheckout = (priceId: string) => {
-    checkoutMutation.mutate(
-      { priceId },
-      {
-        onSuccess: (data) => { window.location.href = data.url; },
-        onError: (err) => toast.error(err.message || "Failed to start checkout"),
+  const handleSubscribe = async () => {
+    try {
+      const { checkoutUrl } = await createCheckout.mutateAsync({
+        priceId: import.meta.env.VITE_STRIPE_PRICE_PREMIUM,
+      });
+      if (checkoutUrl) {
+        window.location.href = checkoutUrl;
       }
-    );
+    } catch (error) {
+      toast.error("Failed to start checkout.");
+    }
+  };
+
+  const handleExtendTrial = async () => {
+    try {
+      const { checkoutUrl } = await createCheckout.mutateAsync({
+        priceId: import.meta.env.VITE_STRIPE_PRICE_TRIAL_EXT,
+      });
+      if (checkoutUrl) {
+        window.location.href = checkoutUrl;
+      }
+    } catch (error) {
+      toast.error("Failed to start checkout.");
+    }
   };
 
   const freeFeatures = [
@@ -37,7 +53,6 @@ const Paywall = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-950">
-      {/* Header */}
       <div className="sticky top-0 z-10 border-b border-slate-800 bg-slate-950/80 backdrop-blur">
         <div className="max-w-7xl mx-auto px-4 py-4 flex items-center justify-between">
           <button
@@ -51,7 +66,6 @@ const Paywall = () => {
         </div>
       </div>
 
-      {/* Hero Section */}
       <div className="max-w-7xl mx-auto px-4 py-12 text-center">
         <h2 className="text-4xl md:text-5xl font-bold text-white mb-4">
           Upgrade to Premium
@@ -64,10 +78,8 @@ const Paywall = () => {
         </p>
       </div>
 
-      {/* Pricing Cards */}
       <div className="max-w-5xl mx-auto px-4 pb-16">
         <div className="grid md:grid-cols-2 gap-8">
-          {/* Free Plan */}
           <Card className="border-slate-700 bg-slate-900">
             <CardHeader>
               <CardTitle className="text-white">Free</CardTitle>
@@ -88,8 +100,8 @@ const Paywall = () => {
               </Button>
 
               <div className="space-y-3">
-                {freeFeatures.map((feature) => (
-                  <div key={feature} className="flex items-start gap-3">
+                {freeFeatures.map((feature, idx) => (
+                  <div key={idx} className="flex items-start gap-3">
                     <div className="w-5 h-5 rounded-full bg-slate-700 flex items-center justify-center mt-0.5 flex-shrink-0">
                       <Check className="w-3 h-3 text-slate-400" />
                     </div>
@@ -100,7 +112,6 @@ const Paywall = () => {
             </CardContent>
           </Card>
 
-          {/* Premium Plan */}
           <Card className="border-red-500/50 bg-slate-900 ring-1 ring-red-500/30 relative md:transform md:scale-105">
             <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 bg-red-600 text-white px-4 py-1 rounded-full text-xs font-semibold">
               RECOMMENDED
@@ -116,16 +127,16 @@ const Paywall = () => {
               </div>
 
               <Button
-                onClick={() => handleCheckout(import.meta.env.VITE_STRIPE_PRICE_PREMIUM)}
-                disabled={checkoutMutation.isPending}
-                className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold disabled:opacity-60"
+                onClick={handleSubscribe}
+                disabled={createCheckout.isPending}
+                className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold"
               >
-                {checkoutMutation.isPending ? "Loading…" : "Subscribe Now"}
+                {createCheckout.isPending ? "Loading..." : "Subscribe Now"}
               </Button>
 
               <div className="space-y-3">
-                {premiumFeatures.map((feature) => (
-                  <div key={feature} className="flex items-start gap-3">
+                {premiumFeatures.map((feature, idx) => (
+                  <div key={idx} className="flex items-start gap-3">
                     <div className="w-5 h-5 rounded-full bg-red-600/30 flex items-center justify-center mt-0.5 flex-shrink-0">
                       <Check className="w-3 h-3 text-red-400" />
                     </div>
@@ -139,12 +150,12 @@ const Paywall = () => {
                   Or extend your trial for 2 more weeks
                 </p>
                 <Button
-                  onClick={() => handleCheckout(import.meta.env.VITE_STRIPE_PRICE_TRIAL_EXT)}
-                  disabled={checkoutMutation.isPending}
+                  onClick={handleExtendTrial}
+                  disabled={createCheckout.isPending}
                   variant="outline"
-                  className="w-full border-slate-600 text-slate-300 hover:bg-slate-800 disabled:opacity-60"
+                  className="w-full border-slate-600 text-slate-300 hover:bg-slate-800"
                 >
-                  Extend Trial – $3.69
+                  {createCheckout.isPending ? "Loading..." : "Extend Trial – $3.69"}
                 </Button>
               </div>
             </CardContent>
@@ -152,7 +163,6 @@ const Paywall = () => {
         </div>
       </div>
 
-      {/* Footer */}
       <div className="border-t border-slate-800 py-8 text-center">
         <p className="text-xs text-slate-500">
           By subscribing, you agree to our terms. Cancel anytime.
