@@ -9,7 +9,7 @@ import { getSessionCookieOptions } from "./_core/cookies";
 import { invokeLLM, RateLimitError } from "./_core/llm";
 import { storagePut } from "./storage";
 import { nanoid } from "nanoid";
-import Stripe from "stripe";
+import { stripeRouter } from "./routers/stripe";
 
 export const appRouter = router({
   system: systemRouter,
@@ -303,39 +303,7 @@ export const appRouter = router({
   }),
 
   // ============= STRIPE PAYMENTS =============
-  stripe: router({
-    createCheckoutSession: protectedProcedure
-      .input(z.object({ priceId: z.string().min(1) }))
-      .mutation(async ({ ctx, input }) => {
-        const secretKey = process.env.STRIPE_SECRET_KEY;
-        if (!secretKey) {
-          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "Stripe is not configured" });
-        }
-
-        const stripe = new Stripe(secretKey, { apiVersion: "2025-04-30.basil" });
-
-        const baseUrl = process.env.VITE_APP_URL || "https://superstack-ai-app.vercel.app";
-
-        // Determine mode by inspecting the price object
-        const price = await stripe.prices.retrieve(input.priceId);
-        const mode = price.recurring ? "subscription" : "payment";
-
-        const session = await stripe.checkout.sessions.create({
-          mode,
-          line_items: [{ price: input.priceId, quantity: 1 }],
-          customer_email: ctx.user.email ?? undefined,
-          success_url: `${baseUrl}/dashboard?upgraded=true`,
-          cancel_url: `${baseUrl}/paywall`,
-          metadata: { userId: ctx.user.id },
-        });
-
-        if (!session.url) {
-          throw new TRPCError({ code: "INTERNAL_SERVER_ERROR", message: "No checkout URL returned" });
-        }
-
-        return { url: session.url };
-      }),
-  }),
+  stripe: stripeRouter,
 });
 
 export type AppRouter = typeof appRouter;
