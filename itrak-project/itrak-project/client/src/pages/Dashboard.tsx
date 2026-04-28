@@ -127,7 +127,14 @@ export default function Dashboard() {
       {/* ── Header ───────────────────────────────────────────────────────────── */}
       <header className="flex items-center justify-between px-5 pt-12 pb-4">
         <h1 className="text-2xl font-extrabold text-white tracking-tight">I-TRAK</h1>
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-2">
+          <button
+            onClick={() => setLocation("/paywall")}
+            className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-red-600/10 border border-red-500/30 text-red-400 text-xs font-bold hover:bg-red-600/20 transition-colors"
+          >
+            <Zap className="w-3 h-3" />
+            Upgrade
+          </button>
           <button
             onClick={() => setLocation("/settings")}
             className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center"
