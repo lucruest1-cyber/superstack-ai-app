@@ -7,7 +7,7 @@ import { ThemeProvider } from "./contexts/ThemeContext";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import WorkoutLogger from "./pages/WorkoutLogger";
-import ExerciseLibrary from "./pages/ExerciseLibrary";
+import Workout from "./pages/Workout";
 import PhotoTracker from "./pages/PhotoTracker";
 import Settings from "./pages/Settings";
 import ExerciseSelector from "./pages/ExerciseSelector";
@@ -21,7 +21,7 @@ function Router() {
       <Route path={"/dashboard"} component={Dashboard} />
       <Route path={"/log"} component={ExerciseSelector} />
       <Route path={"/workout"} component={WorkoutLogger} />
-      <Route path={"/exercises"} component={ExerciseLibrary} />
+      <Route path={"/exercises"} component={Workout} />
       <Route path={"/meals"} component={Meals} />
       <Route path={"/paywall"} component={Paywall} />
       <Route path={"/photos"} component={PhotoTracker} />

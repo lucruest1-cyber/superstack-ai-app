@@ -1,0 +1,21 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(git push *)",
+      "Bash(pnpm build *)",
+      "Bash(node -e \"require\\('pdfkit'\\)\")",
+      "Bash(node scripts/generate-guide-pdf.cjs)",
+      "Bash(node \"c:/Projects/superstack-ai-app/itrak-project/itrak-project/scripts/generate-guide-pdf.cjs\")",
+      "Bash(pnpm approve-builds *)",
+      "Bash(node -e \"const sharp = require\\('sharp'\\); console.log\\(sharp.versions\\)\")",
+      "Bash(stripe --version)",
+      "Bash(winget install *)",
+      "PowerShell(winget install Stripe.StripeCLI --accept-source-agreements --accept-package-agreements 2>&1)",
+      "Bash(git commit *)",
+      "Bash(find . -name \"exercises.json\" -not -path \"*/node_modules/*\")",
+      "Bash(ls server/data/)"
+    ]
+  }
+}
