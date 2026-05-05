@@ -9,29 +9,12 @@ const Paywall = () => {
   const [, navigate] = useLocation();
   const createCheckout = trpc.stripe.createCheckoutSession.useMutation();
 
-  const handleSubscribe = async () => {
+  const handleCheckout = async (priceId: string) => {
     try {
-      const { checkoutUrl } = await createCheckout.mutateAsync({
-        priceId: import.meta.env.VITE_STRIPE_PRICE_PREMIUM,
-      });
-      if (checkoutUrl) {
-        window.location.href = checkoutUrl;
-      }
-    } catch (error) {
-      toast.error("Failed to start checkout.");
-    }
-  };
-
-  const handleExtendTrial = async () => {
-    try {
-      const { checkoutUrl } = await createCheckout.mutateAsync({
-        priceId: import.meta.env.VITE_STRIPE_PRICE_TRIAL_EXT,
-      });
-      if (checkoutUrl) {
-        window.location.href = checkoutUrl;
-      }
-    } catch (error) {
-      toast.error("Failed to start checkout.");
+      const { checkoutUrl } = await createCheckout.mutateAsync({ priceId });
+      if (checkoutUrl) window.location.href = checkoutUrl;
+    } catch (error: any) {
+      toast.error(error?.message || "Failed to start checkout");
     }
   };
 
@@ -127,7 +110,7 @@ const Paywall = () => {
               </div>
 
               <Button
-                onClick={handleSubscribe}
+                onClick={() => handleCheckout(import.meta.env.VITE_STRIPE_PRICE_PREMIUM)}
                 disabled={createCheckout.isPending}
                 className="w-full bg-red-600 hover:bg-red-700 text-white font-semibold"
               >
@@ -150,7 +133,7 @@ const Paywall = () => {
                   Or extend your trial for 2 more weeks
                 </p>
                 <Button
-                  onClick={handleExtendTrial}
+                  onClick={() => handleCheckout(import.meta.env.VITE_STRIPE_PRICE_TRIAL_EXT)}
                   disabled={createCheckout.isPending}
                   variant="outline"
                   className="w-full border-slate-600 text-slate-300 hover:bg-slate-800"
