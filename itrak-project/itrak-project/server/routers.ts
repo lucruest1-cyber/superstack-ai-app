@@ -10,6 +10,7 @@ import { invokeLLM, RateLimitError } from "./_core/llm";
 import { storagePut } from "./storage";
 import { nanoid } from "nanoid";
 import { stripeRouter } from "./routers/stripe";
+import { exercisesDatabase } from "./data/exercises";
 
 export const appRouter = router({
   system: systemRouter,
@@ -51,15 +52,32 @@ export const appRouter = router({
 
   // ============= EXERCISE LIBRARY =============
   exercises: router({
+    listAll: protectedProcedure.query(() => {
+      return exercisesDatabase;
+    }),
+
     listByEnvironment: protectedProcedure
-      .input(z.object({ environment: z.enum(["gym", "home", "hotel", "outside"]) }))
-      .query(async ({ input }) => {
-        return await db.getExercisesByEnvironment(input.environment);
+      .input(z.object({ environment: z.string() }))
+      .query(({ input }) => {
+        return exercisesDatabase.filter(ex => ex.environments.includes(input.environment));
       }),
 
-    listAll: protectedProcedure.query(async () => {
-      return await db.getAllExercises();
-    }),
+    search: protectedProcedure
+      .input(z.object({ query: z.string() }))
+      .query(({ input }) => {
+        const lowerQuery = input.query.toLowerCase();
+        return exercisesDatabase.filter(ex =>
+          ex.name.toLowerCase().includes(lowerQuery) ||
+          ex.category.toLowerCase().includes(lowerQuery) ||
+          ex.muscleGroups.some(mg => mg.toLowerCase().includes(lowerQuery))
+        );
+      }),
+
+    getById: protectedProcedure
+      .input(z.object({ id: z.string() }))
+      .query(({ input }) => {
+        return exercisesDatabase.find(ex => ex.id === input.id) ?? null;
+      }),
   }),
 
   // ============= WORKOUT LOGGING =============
