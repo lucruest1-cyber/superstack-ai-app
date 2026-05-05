@@ -14,6 +14,7 @@ export interface UserRecord {
   genderDemoPreference: "male" | "female" | "neutral";
   lastSignedIn?: Date | null;
   createdAt?: Date;
+  stripeCustomerId?: string | null;
 }
 
 export interface WorkoutLogRecord {
@@ -318,4 +319,18 @@ export async function activateBetaTester(email: string): Promise<void> {
     .get();
   if (snapshot.empty) return;
   await snapshot.docs[0].ref.set({ status: "active", activatedAt: new Date() }, { merge: true });
+}
+
+export async function updateUserStripeCustomerId(userId: string, stripeCustomerId: string): Promise<void> {
+  await db().collection("users").doc(userId).set({ stripeCustomerId }, { merge: true });
+}
+
+export async function getUserByEmail(email: string): Promise<UserRecord | undefined> {
+  const snapshot = await db().collection("users")
+    .where("email", "==", email)
+    .limit(1)
+    .get();
+  if (snapshot.empty) return undefined;
+  const doc = snapshot.docs[0];
+  return docToUser(doc.id, doc.data());
 }
