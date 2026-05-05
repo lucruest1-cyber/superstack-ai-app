@@ -22,6 +22,11 @@ export const trpcClient = trpc.createClient({
       url: "/api/trpc",
       transformer: superjson,
       headers: async () => {
+        // Wait for Firebase to finish hydrating auth state from IndexedDB
+        // before reading currentUser. Without this, the first queries on a
+        // fresh page load fire while auth.currentUser is still null and
+        // get sent without an Authorization header → 401.
+        await auth.authStateReady();
         const user = auth.currentUser;
         if (!user) return {};
         const token = await user.getIdToken();
