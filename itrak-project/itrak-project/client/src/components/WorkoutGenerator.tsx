@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, RefreshCw, AlertCircle } from "lucide-react";
+import { ArrowLeft, RefreshCw, AlertCircle, Dumbbell } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
@@ -110,10 +110,13 @@ export default function WorkoutGenerator({ environment, muscleGroup, trainingMod
   const unit = prefs?.unitPreference ?? "lbs";
 
   const [plan, setPlan] = useState<WorkoutItem[]>([]);
+  const [step, setStep] = useState<"preview" | "log">("preview");
 
   useEffect(() => {
     if (exercises.length > 0) {
       setPlan(generateWorkout(exercises as RawExercise[], trainingMode, muscleGroup));
+      // Reset to preview step whenever filters change so users see the new plan first
+      setStep("preview");
     }
   }, [exercises, trainingMode, muscleGroup]);
 
@@ -149,25 +152,30 @@ export default function WorkoutGenerator({ environment, muscleGroup, trainingMod
       {/* ── Header ───────────────────────────────────────────────────────────── */}
       <header className="flex items-center gap-3 px-5 pt-12 pb-3 shrink-0">
         <button
-          onClick={onClose}
+          onClick={() => (step === "log" ? setStep("preview") : onClose())}
           className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center"
+          title={step === "log" ? "Back to preview" : "Close"}
         >
           <ArrowLeft className="w-4 h-4 text-gray-400" />
         </button>
         <div className="flex-1 min-w-0">
-          <h1 className="text-xl font-extrabold text-white tracking-tight">Today's Workout</h1>
+          <h1 className="text-xl font-extrabold text-white tracking-tight">
+            {step === "preview" ? "Today's Workout" : "Log Workout"}
+          </h1>
           <p className="text-gray-500 text-xs mt-0.5 truncate">
             {trainingMode} · {ENV_LABELS[environment]} · {muscleGroup === "All" ? "All Muscles" : muscleGroup}
           </p>
         </div>
-        <button
-          onClick={regenerate}
-          disabled={isLoading || exercises.length === 0}
-          className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors disabled:opacity-40"
-          title="Generate new workout"
-        >
-          <RefreshCw className="w-4 h-4 text-gray-400" />
-        </button>
+        {step === "preview" && (
+          <button
+            onClick={regenerate}
+            disabled={isLoading || exercises.length === 0}
+            className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors disabled:opacity-40"
+            title="Generate new workout"
+          >
+            <RefreshCw className="w-4 h-4 text-gray-400" />
+          </button>
+        )}
       </header>
 
       {/* ── Mode badge ───────────────────────────────────────────────────────── */}
@@ -221,6 +229,11 @@ export default function WorkoutGenerator({ environment, muscleGroup, trainingMod
                       {item.muscleGroups.slice(0, 2).map((m) => (
                         <span key={m} className="text-[10px] text-gray-400 bg-white/5 border border-white/5 px-2 py-0.5 rounded-full capitalize">{m}</span>
                       ))}
+                      {step === "preview" && (
+                        <span className="text-[10px] text-gray-500 bg-white/5 border border-white/5 px-2 py-0.5 rounded-full">
+                          {item.sets} × {item.reps}
+                        </span>
+                      )}
                     </div>
                   </div>
                   <span className="text-xs text-gray-600 bg-white/5 px-2 py-0.5 rounded-full shrink-0 mt-0.5">
@@ -228,41 +241,43 @@ export default function WorkoutGenerator({ environment, muscleGroup, trainingMod
                   </span>
                 </div>
 
-                {/* Sets / Reps / Weight inputs */}
-                <div className="grid grid-cols-3 gap-2">
-                  {(
-                    [
-                      { label: "Sets",            key: "sets"   as const, min: 1, step: 1   },
-                      { label: "Reps",            key: "reps"   as const, min: 1, step: 1   },
-                      { label: `Wt (${unit})`,    key: "weight" as const, min: 0, step: 2.5 },
-                    ]
-                  ).map(({ label, key, min, step }) => (
-                    <div key={key}>
-                      <label className="text-gray-600 text-[10px] uppercase tracking-wider block mb-1">{label}</label>
-                      <input
-                        type="number"
-                        inputMode="decimal"
-                        min={min}
-                        step={step}
-                        placeholder={key === "weight" ? "0" : undefined}
-                        value={key === "weight" ? item.weight : item[key]}
-                        onChange={(e) =>
-                          setPlan((p) =>
-                            p.map((x, j) =>
-                              j !== i ? x : {
-                                ...x,
-                                [key]: key === "weight"
-                                  ? e.target.value
-                                  : Math.max(1, parseInt(e.target.value) || 1),
-                              }
+                {/* Sets / Reps / Weight inputs — only in log step */}
+                {step === "log" && (
+                  <div className="grid grid-cols-3 gap-2">
+                    {(
+                      [
+                        { label: "Sets",            key: "sets"   as const, min: 1, step: 1   },
+                        { label: "Reps",            key: "reps"   as const, min: 1, step: 1   },
+                        { label: `Wt (${unit})`,    key: "weight" as const, min: 0, step: 2.5 },
+                      ]
+                    ).map(({ label, key, min, step: stepAttr }) => (
+                      <div key={key}>
+                        <label className="text-gray-600 text-[10px] uppercase tracking-wider block mb-1">{label}</label>
+                        <input
+                          type="number"
+                          inputMode="decimal"
+                          min={min}
+                          step={stepAttr}
+                          placeholder={key === "weight" ? "0" : undefined}
+                          value={key === "weight" ? item.weight : item[key]}
+                          onChange={(e) =>
+                            setPlan((p) =>
+                              p.map((x, j) =>
+                                j !== i ? x : {
+                                  ...x,
+                                  [key]: key === "weight"
+                                    ? e.target.value
+                                    : Math.max(1, parseInt(e.target.value) || 1),
+                                }
+                              )
                             )
-                          )
-                        }
-                        className="w-full bg-[#0a0a0f] border border-white/10 rounded-lg px-1 py-2 text-white text-center text-sm font-bold focus:outline-none focus:border-red-600/50 placeholder-gray-700"
-                      />
-                    </div>
-                  ))}
-                </div>
+                          }
+                          className="w-full bg-[#0a0a0f] border border-white/10 rounded-lg px-1 py-2 text-white text-center text-sm font-bold focus:outline-none focus:border-red-600/50 placeholder-gray-700"
+                        />
+                      </div>
+                    ))}
+                  </div>
+                )}
               </div>
             ))}
           </div>
@@ -272,13 +287,32 @@ export default function WorkoutGenerator({ environment, muscleGroup, trainingMod
       {/* ── Footer ───────────────────────────────────────────────────────────── */}
       {!isLoading && !isError && plan.length > 0 && (
         <div className="px-5 py-5 border-t border-white/5 shrink-0">
-          <button
-            onClick={handleLog}
-            disabled={logBatch.isPending}
-            className="w-full py-4 rounded-2xl bg-red-600 text-white font-bold text-base tracking-wide hover:bg-red-700 active:bg-red-800 transition-colors disabled:opacity-50 shadow-lg shadow-red-600/20"
-          >
-            {logBatch.isPending ? "Logging…" : `LOG ${plan.length} EXERCISES`}
-          </button>
+          {step === "preview" ? (
+            <div className="flex gap-3">
+              <button
+                onClick={regenerate}
+                className="flex-1 py-4 rounded-2xl bg-white/5 border border-white/10 text-gray-200 font-bold text-base tracking-wide hover:bg-white/10 active:bg-white/15 transition-colors flex items-center justify-center gap-2"
+              >
+                <RefreshCw className="w-4 h-4" />
+                REGENERATE
+              </button>
+              <button
+                onClick={() => setStep("log")}
+                className="flex-1 py-4 rounded-2xl bg-red-600 text-white font-bold text-base tracking-wide hover:bg-red-700 active:bg-red-800 transition-colors shadow-lg shadow-red-600/20 flex items-center justify-center gap-2"
+              >
+                <Dumbbell className="w-4 h-4" />
+                START WORKOUT
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={handleLog}
+              disabled={logBatch.isPending}
+              className="w-full py-4 rounded-2xl bg-red-600 text-white font-bold text-base tracking-wide hover:bg-red-700 active:bg-red-800 transition-colors disabled:opacity-50 shadow-lg shadow-red-600/20"
+            >
+              {logBatch.isPending ? "Logging…" : `FINISH WORKOUT (${plan.length})`}
+            </button>
+          )}
         </div>
       )}
     </div>

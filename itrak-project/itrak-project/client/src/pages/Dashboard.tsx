@@ -262,7 +262,7 @@ export default function Dashboard() {
             </span>
           </div>
           <button
-            onClick={() => setLocation(`/log?env=${activeEnv.toLowerCase()}&muscle=${activeMuscle.toLowerCase()}`)}
+            onClick={() => setShowGenerator(true)}
             className="w-8 h-8 rounded-full bg-red-600 flex items-center justify-center hover:bg-red-700 transition-colors"
           >
             <Plus className="w-4 h-4 text-white" />
@@ -274,7 +274,7 @@ export default function Dashboard() {
         ) : filteredWorkouts.length === 0 ? (
           <div
             className="rounded-xl border border-dashed border-white/10 py-8 flex flex-col items-center gap-2 cursor-pointer hover:border-red-600/30 transition-colors"
-            onClick={() => setLocation(`/log?env=${activeEnv.toLowerCase()}&muscle=${activeMuscle.toLowerCase()}`)}
+            onClick={() => setShowGenerator(true)}
           >
             <Plus className="w-6 h-6 text-gray-600" />
             <p className="text-gray-600 text-sm">Tap + to log your first exercise</p>
