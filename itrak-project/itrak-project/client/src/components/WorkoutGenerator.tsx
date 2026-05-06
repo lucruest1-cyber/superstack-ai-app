@@ -147,7 +147,7 @@ export default function WorkoutGenerator({ environment, muscleGroup, trainingMod
   const modeInfo = MODE_DEFAULTS[trainingMode] ?? { sets: 3, reps: 10, label: "3 × 10" };
 
   return (
-    <div className="fixed inset-0 z-50 bg-[#0a0a0f] flex flex-col">
+    <div className="fixed inset-0 z-[60] bg-[#0a0a0f] flex flex-col">
 
       {/* ── Header ───────────────────────────────────────────────────────────── */}
       <header className="flex items-center gap-3 px-5 pt-12 pb-3 shrink-0">

@@ -3,7 +3,7 @@ import { Home, Dumbbell, Camera, Settings } from "lucide-react";
 
 const TABS = [
   { path: "/dashboard", icon: Home,     label: "Home"    },
-  { path: "/log",       icon: Dumbbell, label: "Workout" },
+  { path: "/workout",   icon: Dumbbell, label: "Workout" },
   { path: "/meals",     icon: Camera,   label: "Meals"   },
   { path: "/settings",  icon: Settings, label: "Profile" },
 ] as const;
@@ -17,7 +17,7 @@ export default function BottomNav() {
         const isMeals = path === "/meals";
         const active   =
           location === path ||
-          (path === "/log" && (location.startsWith("/log") || location.startsWith("/workout")));
+          (path === "/workout" && (location.startsWith("/workout") || location.startsWith("/log") || location.startsWith("/exercises")));
         const activeColor = isMeals ? "text-blue-400" : "text-red-400";
 
         return (
