@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, RefreshCw, AlertCircle, Dumbbell } from "lucide-react";
+import { ArrowLeft, RefreshCw, AlertCircle, Dumbbell, Sparkles } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
@@ -111,6 +111,7 @@ export default function WorkoutGenerator({ environment, muscleGroup, trainingMod
 
   const [plan, setPlan] = useState<WorkoutItem[]>([]);
   const [step, setStep] = useState<"preview" | "log">("preview");
+  const [isGenerating, setIsGenerating] = useState(false);
 
   useEffect(() => {
     if (exercises.length > 0) {
@@ -120,8 +121,18 @@ export default function WorkoutGenerator({ environment, muscleGroup, trainingMod
     }
   }, [exercises, trainingMode, muscleGroup]);
 
+  /**
+   * Regenerate with a deliberate 2.5s delay + overlay so users perceive the
+   * AI "thinking". The actual generation is instant client-side, but without
+   * the delay the screen seems to do nothing.
+   */
   function regenerate() {
-    setPlan(generateWorkout(exercises as RawExercise[], trainingMode, muscleGroup));
+    if (isGenerating) return;
+    setIsGenerating(true);
+    setTimeout(() => {
+      setPlan(generateWorkout(exercises as RawExercise[], trainingMode, muscleGroup));
+      setIsGenerating(false);
+    }, 2500);
   }
 
   const logBatch = trpc.workouts.logBatch.useMutation({
@@ -169,11 +180,11 @@ export default function WorkoutGenerator({ environment, muscleGroup, trainingMod
         {step === "preview" && (
           <button
             onClick={regenerate}
-            disabled={isLoading || exercises.length === 0}
+            disabled={isLoading || exercises.length === 0 || isGenerating}
             className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:bg-white/10 transition-colors disabled:opacity-40"
             title="Generate new workout"
           >
-            <RefreshCw className="w-4 h-4 text-gray-400" />
+            <RefreshCw className={`w-4 h-4 text-gray-400 ${isGenerating ? "animate-spin" : ""}`} />
           </button>
         )}
       </header>
@@ -291,14 +302,16 @@ export default function WorkoutGenerator({ environment, muscleGroup, trainingMod
             <div className="flex gap-3">
               <button
                 onClick={regenerate}
-                className="flex-1 py-4 rounded-2xl bg-white/5 border border-white/10 text-gray-200 font-bold text-base tracking-wide hover:bg-white/10 active:bg-white/15 transition-colors flex items-center justify-center gap-2"
+                disabled={isGenerating}
+                className="flex-1 py-4 rounded-2xl bg-white/5 border border-white/10 text-gray-200 font-bold text-base tracking-wide hover:bg-white/10 active:bg-white/15 transition-colors flex items-center justify-center gap-2 disabled:opacity-50"
               >
-                <RefreshCw className="w-4 h-4" />
-                REGENERATE
+                <Sparkles className={`w-4 h-4 ${isGenerating ? "animate-spin" : ""}`} />
+                REFRESH WORKOUT
               </button>
               <button
                 onClick={() => setStep("log")}
-                className="flex-1 py-4 rounded-2xl bg-red-600 text-white font-bold text-base tracking-wide hover:bg-red-700 active:bg-red-800 transition-colors shadow-lg shadow-red-600/20 flex items-center justify-center gap-2"
+                disabled={isGenerating}
+                className="flex-1 py-4 rounded-2xl bg-red-600 text-white font-bold text-base tracking-wide hover:bg-red-700 active:bg-red-800 transition-colors shadow-lg shadow-red-600/20 flex items-center justify-center gap-2 disabled:opacity-50"
               >
                 <Dumbbell className="w-4 h-4" />
                 START WORKOUT
@@ -313,6 +326,24 @@ export default function WorkoutGenerator({ environment, muscleGroup, trainingMod
               {logBatch.isPending ? "Logging…" : `FINISH WORKOUT (${plan.length})`}
             </button>
           )}
+        </div>
+      )}
+
+      {/* ── AI generation overlay ────────────────────────────────────────────── */}
+      {isGenerating && (
+        <div className="absolute inset-0 z-10 bg-[#0a0a0f]/85 backdrop-blur-sm flex items-center justify-center pointer-events-none">
+          <div className="flex flex-col items-center gap-4 px-8 text-center">
+            <div className="relative w-16 h-16 flex items-center justify-center">
+              <div className="absolute inset-0 rounded-full bg-red-600/20 animate-ping" />
+              <div className="relative w-16 h-16 rounded-full bg-gradient-to-br from-red-500 to-red-700 flex items-center justify-center shadow-lg shadow-red-600/40">
+                <Sparkles className="w-7 h-7 text-white animate-pulse" />
+              </div>
+            </div>
+            <div>
+              <p className="text-white font-bold text-base">Generating your workout…</p>
+              <p className="text-gray-400 text-xs mt-1">AI is picking the best exercises</p>
+            </div>
+          </div>
         </div>
       )}
     </div>
