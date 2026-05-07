@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { ArrowLeft, RefreshCw, AlertCircle, Dumbbell, Sparkles } from "lucide-react";
+import { ArrowLeft, RefreshCw, AlertCircle, Dumbbell, Sparkles, X, Play } from "lucide-react";
 import { trpc } from "@/lib/trpc";
 import { toast } from "sonner";
 
@@ -14,6 +14,9 @@ interface WorkoutItem {
   sets: number;
   reps: number;
   weight: string;
+  demoUrl?: string;
+  posterUrl?: string;
+  formTips?: string;
 }
 
 interface Props {
@@ -43,6 +46,9 @@ type RawExercise = {
   muscleGroups?: string[] | null;
   difficulty: string;
   environments: string[];
+  demoUrl?: string;
+  posterUrl?: string;
+  formTips?: string;
 };
 
 function generateWorkout(
@@ -95,6 +101,9 @@ function generateWorkout(
     sets:         defaults.sets,
     reps:         defaults.reps,
     weight:       "",
+    demoUrl:      ex.demoUrl,
+    posterUrl:    ex.posterUrl,
+    formTips:     ex.formTips,
   }));
 }
 
@@ -112,6 +121,7 @@ export default function WorkoutGenerator({ environment, muscleGroup, trainingMod
   const [plan, setPlan] = useState<WorkoutItem[]>([]);
   const [step, setStep] = useState<"preview" | "log">("preview");
   const [isGenerating, setIsGenerating] = useState(false);
+  const [demoFor, setDemoFor] = useState<WorkoutItem | null>(null);
 
   useEffect(() => {
     if (exercises.length > 0) {
@@ -232,8 +242,36 @@ export default function WorkoutGenerator({ environment, muscleGroup, trainingMod
           <div className="space-y-3">
             {plan.map((item, i) => (
               <div key={i} className="rounded-xl bg-[#13131a] border border-white/5 px-4 py-3">
-                {/* Exercise name + index */}
-                <div className="flex items-start justify-between gap-2 mb-3">
+                {/* Exercise name + thumbnail + index */}
+                <div className="flex items-start justify-between gap-3 mb-3">
+                  {/* Thumbnail (or placeholder if no demo) — tappable when demo exists */}
+                  {item.demoUrl ? (
+                    <button
+                      onClick={() => setDemoFor(item)}
+                      className="relative w-14 h-14 rounded-lg overflow-hidden bg-black border border-white/10 shrink-0 group"
+                      title="Watch demo"
+                    >
+                      {item.posterUrl ? (
+                        <img
+                          src={item.posterUrl}
+                          alt=""
+                          className="w-full h-full object-cover"
+                          loading="lazy"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gradient-to-br from-red-600/20 to-red-900/40" />
+                      )}
+                      {/* Play overlay */}
+                      <div className="absolute inset-0 flex items-center justify-center bg-black/40 group-hover:bg-black/20 transition-colors">
+                        <Play className="w-5 h-5 text-white fill-white" />
+                      </div>
+                    </button>
+                  ) : (
+                    <div className="w-14 h-14 rounded-lg bg-white/5 border border-white/10 shrink-0 flex items-center justify-center">
+                      <Dumbbell className="w-5 h-5 text-gray-600" />
+                    </div>
+                  )}
+
                   <div className="flex-1 min-w-0">
                     <p className="text-white font-semibold text-sm leading-snug">{item.exerciseName}</p>
                     <div className="flex flex-wrap gap-1 mt-1">
@@ -326,6 +364,60 @@ export default function WorkoutGenerator({ environment, muscleGroup, trainingMod
               {logBatch.isPending ? "Logging…" : `FINISH WORKOUT (${plan.length})`}
             </button>
           )}
+        </div>
+      )}
+
+      {/* ── Demo video modal (Fitbod-style tap-to-expand) ────────────────────── */}
+      {demoFor && demoFor.demoUrl && (
+        <div
+          className="absolute inset-0 z-20 bg-black/90 backdrop-blur-sm flex flex-col"
+          onClick={() => setDemoFor(null)}
+        >
+          <div className="flex items-center justify-between px-5 pt-12 pb-3 shrink-0">
+            <h2 className="text-white font-bold text-base flex-1 truncate pr-3">
+              {demoFor.exerciseName}
+            </h2>
+            <button
+              onClick={() => setDemoFor(null)}
+              className="w-9 h-9 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center transition-colors"
+              title="Close"
+            >
+              <X className="w-4 h-4 text-white" />
+            </button>
+          </div>
+
+          <div className="flex-1 flex flex-col items-center justify-center px-5" onClick={(e) => e.stopPropagation()}>
+            <div className="w-full max-w-sm rounded-2xl overflow-hidden bg-black shadow-2xl shadow-black/50">
+              <video
+                src={demoFor.demoUrl}
+                poster={demoFor.posterUrl}
+                autoPlay
+                loop
+                muted
+                playsInline
+                className="w-full h-auto"
+              />
+            </div>
+
+            {demoFor.muscleGroups.length > 0 && (
+              <div className="flex flex-wrap gap-1 mt-4 justify-center">
+                {demoFor.muscleGroups.map((m) => (
+                  <span key={m} className="text-xs text-gray-300 bg-white/5 border border-white/10 px-2.5 py-1 rounded-full capitalize">
+                    {m}
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {demoFor.formTips && (
+              <div className="mt-5 max-w-sm text-center">
+                <p className="text-gray-500 text-[10px] uppercase tracking-widest mb-1">Form tips</p>
+                <p className="text-gray-300 text-sm leading-relaxed">{demoFor.formTips}</p>
+              </div>
+            )}
+          </div>
+
+          <p className="text-center text-gray-600 text-xs pb-6 pt-2 shrink-0">Tap outside to close</p>
         </div>
       )}
 

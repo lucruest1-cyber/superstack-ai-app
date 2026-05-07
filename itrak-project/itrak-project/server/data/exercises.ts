@@ -9,6 +9,10 @@ export interface Exercise {
   environments: string[];
   formTips: string;
   commonMistakes: string;
+  /** Optional MP4 demo loop (320px wide h264). Served from /demo-gifs/<slug>.mp4 */
+  demoUrl?: string;
+  /** Optional poster image for the demo (used as inline thumbnail and video poster) */
+  posterUrl?: string;
 }
 
 export const exercisesDatabase: Exercise[] = exercisesData.exercises as Exercise[];
